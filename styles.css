@@ -1,0 +1,160 @@
+/* CIAO Tactical Theme */
+:root {
+    --hud-bg: #0a0b10;
+    --hud-panel: #14161f;
+    --hud-green: #00ff41;
+    --hud-green-dim: #005a17;
+    --hud-red: #ff3333;
+    --hud-red-dim: #5a0b0b;
+    --hud-blue: #00d4ff;
+    --hud-orange: #ffaa00;
+    --hud-purple: #bd00ff;
+    --text-main: #e0e0e0;
+    --text-dim: #6e7681;
+    --grid-line: rgba(0, 255, 65, 0.05);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--hud-bg);
+    color: var(--text-main);
+    font-family: 'Courier New', Courier, monospace; /* Fallback, prefer nice tech font if available */
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-image: 
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Utilities */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+    padding-bottom: 80px; /* Space for navbar */
+}
+
+.panel {
+    background: var(--hud-panel);
+    border: var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.panel::before {
+    /* Corner accent */
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 0; height: 0;
+    border-top: 2px solid var(--hud-green);
+    border-right: 2px solid transparent; 
+    border-left: 0; border-bottom: 0;
+    width: 10px; height: 10px;
+}
+
+.header-text {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9em;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.value-huge {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--hud-green);
+    text-shadow: 0 0 10px var(--hud-green-dim);
+}
+
+.btn {
+    background: transparent;
+    border: 1px solid var(--hud-green);
+    color: var(--hud-green);
+    padding: 0.5rem 1rem;
+    text-transform: uppercase;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: var(--hud-green);
+    color: #000;
+    box-shadow: 0 0 10px var(--hud-green);
+}
+
+.btn-primary {
+    background: var(--hud-green-dim);
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.btn-danger {
+    border-color: var(--hud-red);
+    color: var(--hud-red);
+}
+.btn-danger:hover {
+    background: var(--hud-red);
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+.input-label {
+    display: block;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    font-size: 0.8em;
+}
+.tactical-input {
+    background: #000;
+    border: 1px solid #333;
+    color: var(--hud-green);
+    padding: 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1.1em;
+}
+.tactical-input:focus {
+    border-color: var(--hud-green);
+    outline: none;
+}
+
+/* Gauges */
+.gauge-bar {
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+.gauge-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.fill-green { background: var(--hud-green); }
+.fill-red { background: var(--hud-red); }
+.fill-blue { background: var(--hud-blue); }
+.fill-orange { background: var(--hud-orange); }
+.fill-purple { background: var(--hud-purple); }
+
+/* Animations */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+.animate-blink {
+    animation: blink 2s infinite;
+}
