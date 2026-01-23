@@ -47,7 +47,7 @@
         }
 
         function Onboarding({ onComplete }) {
-            const [form, setForm] = useState({ weight: 80, height: 180, age: 30, gender: 'male', apiKey: '' });
+            const [form, setForm] = useState({ weight: 80, height: 180, age: 30, gender: 'male' });
 
             const handleSubmit = () => {
                 const bmr = Engine.calculateBMR(form.weight, form.height, form.age, form.gender);
@@ -73,8 +73,7 @@
                             <input type="number" className="tactical-input" value={form.age} onChange={e => setForm({ ...form, age: parseFloat(e.target.value) })} />
                         </div>
                         <div className="input-group">
-                            <label className="input-label">Google Gemini API Key (Optional)</label>
-                            <input type="text" className="tactical-input" placeholder="Start with AIza..." value={form.apiKey} onChange={e => setForm({ ...form, apiKey: e.target.value })} />
+
                         </div>
                         <button className="btn btn-primary" onClick={handleSubmit}>Initialize System</button>
                     </div>
@@ -322,7 +321,7 @@
                                         const query = document.getElementById('smartInput').value;
                                         if (!query) return;
                                         try {
-                                            const items = await Nutrition.fetchNutrition(query, user.apiKey);
+                                            const items = await Nutrition.fetchNutrition(query);
                                             if (items && items.length > 0) {
                                                 const item = items[0];
                                                 setFoodForm({

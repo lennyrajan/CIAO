@@ -68,57 +68,40 @@ window.CIAO.Nutrition = {
      * Fetch from CalorieNinjas
      */
     /**
-     * Fetch from Google Gemini 1.5 Flash
+     * Fetch from Netlify Function (proxies to Gemini)
      * @param {string} query Natural language query
-     * @param {string} apiKey Google Gemini API Key
      */
-    fetchNutrition: async function (query, apiKey) {
-        if (!apiKey) {
-            console.warn("No API Key provided. Using Offline Dictionary.");
-            const local = this.parseOfflineQuery(query);
-            if (local) return [local];
-            throw new Error("No Gemini API Key and item not in offline DB.");
-        }
+    fetchNutrition: async function (query) {
+        if (!query) return [];
 
         try {
-            const prompt = `
-            Analyze this food query: "${query}". 
-            Return a STRICT JSON array of objects with nutritional estimates. 
-            Format: [{"name": string, "calories": number, "protein_g": number, "carbohydrates_total_g": number, "fat_total_g": number}].
-            If quantity is not specified, estimate a standard serving size.
-            Do not include Markdown formatting (like \`\`\`json). Just the raw JSON string.
-            `;
+            console.log(`Fetching nutrition for: ${query} via Netlify Function`);
+            const url = `/.netlify/functions/get-nutrition?query=${encodeURIComponent(query)}`;
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
-            });
+            const response = await fetch(url);
 
             if (!response.ok) {
-                throw new Error("Gemini API Error: " + response.statusText);
+                throw new Error("Netlify Function Error: " + response.statusText);
             }
 
             const data = await response.json();
 
-            // Parse Gemini Response
+            if (!data.candidates) {
+                if (data.error) throw new Error("API Error: " + data.error);
+                throw new Error("Invalid structure from API");
+            }
+
             const textResponse = data.candidates[0].content.parts[0].text;
-
-            // Clean up if Gemini adds markdown code blocks
             const jsonStr = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-
             const items = JSON.parse(jsonStr);
+
             return items;
 
         } catch (error) {
-            console.error("Gemini Fetch error:", error);
-            // Fallback to local if API fails
+            console.warn("Netlify Service failed, falling back to offline.", error);
             const local = this.parseOfflineQuery(query);
             if (local) return [local];
-            throw new Error("Gemini Analysis Failed: " + error.message);
+            return [];
         }
     }
 };
