@@ -211,8 +211,8 @@
             };
 
             const handleResetSystem = () => {
-                if (confirm("CRITICAL WARNING: This will wipe your profile and return to onboarding. Proceed?")) {
-                    Storage.clearUser();
+                if (confirm("CRITICAL WARNING: This will FACTORY RESET the app. All data and logs will be lost. Proceed?")) {
+                    localStorage.clear(); // Nuke everything
                     window.location.reload();
                 }
             };
