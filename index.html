@@ -81,7 +81,15 @@
             );
         }
 
-        function Dashboard({ user }) {
+        function Dashboard({ user, onReset }) {
+            // ... (existing state) ...
+
+            // ... (useEffect logic exists here) ...
+
+            // ... (handlers) ...
+
+            // Replaced handleResetSystem with prop call
+            const handleResetSystem = onReset;
             // State: Itemized logs now
             const [activityLog, setActivityLog] = useState([]);
             const [foodLog, setFoodLog] = useState([]);
@@ -210,12 +218,7 @@
                 alert("Day Closed. Logs cleared for a fresh start.");
             };
 
-            const handleResetSystem = () => {
-                if (confirm("CRITICAL WARNING: This will FACTORY RESET the app. All data and logs will be lost. Proceed?")) {
-                    localStorage.clear(); // Nuke everything
-                    window.location.reload();
-                }
-            };
+            const handleResetSystem = onReset;
 
             return (
                 <div className="container">
@@ -460,11 +463,19 @@
         function App() {
             const [user, setUser] = useState(Storage.getUser());
 
+            const handleReset = () => {
+                if (confirm("CRITICAL WARNING: This will FACTORY RESET the app. All data and logs will be lost. Proceed?")) {
+                    localStorage.clear();
+                    setUser(null); // Unmounts Dashboard immediately
+                    setTimeout(() => window.location.reload(), 100); // Reload after brief delay
+                }
+            };
+
             if (!user) {
                 return <Onboarding onComplete={setUser} />;
             }
 
-            return <Dashboard user={user} />;
+            return <Dashboard user={user} onReset={handleReset} />;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
