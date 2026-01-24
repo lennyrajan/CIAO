@@ -465,9 +465,16 @@
 
             const handleReset = () => {
                 if (confirm("CRITICAL WARNING: This will FACTORY RESET the app. All data and logs will be lost. Proceed?")) {
-                    localStorage.clear();
-                    setUser(null); // Unmounts Dashboard immediately
-                    setTimeout(() => window.location.reload(), 100); // Reload after brief delay
+                    // Explicitly remove known keys first
+                    localStorage.removeItem('ciao_user_v1');
+                    localStorage.removeItem('ciao_logs_v1');
+                    localStorage.clear(); // Then nuke everything else
+
+                    setUser(null);
+                    // Force hard reload via location assignment to bust any state
+                    setTimeout(() => {
+                        window.location.href = window.location.href;
+                    }, 50);
                 }
             };
 
