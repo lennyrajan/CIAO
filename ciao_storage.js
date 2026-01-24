@@ -29,5 +29,18 @@ window.CIAO.Storage = {
         const logs = JSON.parse(localStorage.getItem(this.KEY_LOGS)) || {};
         logs[today] = logData;
         localStorage.setItem(this.KEY_LOGS, JSON.stringify(logs));
+    },
+
+    clearTodayLog: function () {
+        const today = new Date().toISOString().split('T')[0];
+        const logs = JSON.parse(localStorage.getItem(this.KEY_LOGS)) || {};
+        if (logs[today]) {
+            delete logs[today];
+            localStorage.setItem(this.KEY_LOGS, JSON.stringify(logs));
+        }
+    },
+
+    clearUser: function () {
+        localStorage.removeItem(this.KEY_USER);
     }
 };
