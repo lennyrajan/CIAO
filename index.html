@@ -281,7 +281,7 @@
             const [history, setHistory] = useState([]);
 
             // Food Form
-            const [foodForm, setFoodForm] = useState({ name: '', cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
+            const [foodForm, setFoodForm] = useState({ name: '', quantity: 0, ratios: null, cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
 
             // Load Daily Log (Migration Logic included)
             useEffect(() => {
@@ -473,7 +473,7 @@
 
                 setFoodLog(prev => [...prev, newEntry]);
                 setIsLogOpen(false);
-                setFoodForm({ name: '', cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
+                setFoodForm({ name: '', quantity: 0, ratios: null, cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
             };
 
             const handleAddSteps = () => {
@@ -880,14 +880,28 @@
                                                 const items = await Nutrition.fetchNutrition(query, manualAmount);
                                                 if (items && items.length > 0) {
                                                     const item = items[0];
+
+                                                    // Auto-scaling Logic
+                                                    const qty = item.serving_size_g || 100;
+                                                    const ratios = {
+                                                        cals: (item.calories || 0) / qty,
+                                                        prot: (item.protein_g || item.protein || 0) / qty,
+                                                        carbs: (item.carbohydrates_total_g || item.carbs || 0) / qty,
+                                                        fat: (item.fat_total_g || item.fat || 0) / qty,
+                                                        fiber: (item.fiber || 0) / qty,
+                                                        satFat: (item.sat_fat || 0) / qty
+                                                    };
+
                                                     setFoodForm({
                                                         name: item.name,
+                                                        quantity: qty,
+                                                        ratios: ratios,
                                                         cals: item.calories,
                                                         prot: item.protein_g || item.protein,
                                                         carbs: item.carbohydrates_total_g || item.carbs,
                                                         fat: item.fat_total_g || item.fat,
                                                         fiber: item.fiber || 0,
-                                                        satFat: item.sat_fat || 0, // Using sat_fat key from offline db
+                                                        satFat: item.sat_fat || 0,
                                                         airfry: false,
                                                         bonePercent: 0,
                                                         yieldPercent: 1.0
@@ -909,32 +923,60 @@
                                     <label className="input-label">Name</label>
                                     <input className="tactical-input" value={foodForm.name} onChange={e => setFoodForm({ ...foodForm, name: e.target.value })} />
                                 </div>
+
+                                <div className="input-group">
+                                    <label className="input-label" style={{ color: 'var(--hud-green)' }}>QUANTITY (g)</label>
+                                    <input
+                                        type="number"
+                                        className="tactical-input"
+                                        style={{ border: '1px solid var(--hud-green)' }}
+                                        value={foodForm.quantity || ''}
+                                        placeholder="Enter amount..."
+                                        onChange={e => {
+                                            const qty = parseFloat(e.target.value) || 0;
+                                            const newState = { ...foodForm, quantity: qty };
+
+                                            // Scale macros if ratios exist
+                                            if (foodForm.ratios) {
+                                                newState.cals = Math.round(qty * foodForm.ratios.cals);
+                                                newState.prot = Math.round(qty * foodForm.ratios.prot);
+                                                newState.carbs = Math.round(qty * foodForm.ratios.carbs);
+                                                newState.fat = Math.round(qty * foodForm.ratios.fat);
+                                                newState.fiber = Math.round(qty * foodForm.ratios.fiber);
+                                                newState.satFat = Math.round(qty * foodForm.ratios.satFat);
+                                            }
+
+                                            setFoodForm(newState);
+                                        }}
+                                    />
+                                </div>
+
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     <div className="input-group">
                                         <label className="input-label">Prot (g)</label>
-                                        <input type="number" className="tactical-input" value={foodForm.prot} onChange={e => setFoodForm({ ...foodForm, prot: e.target.value })} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.prot} />
                                     </div>
                                     <div className="input-group">
                                         <label className="input-label">Carbs (g)</label>
-                                        <input type="number" className="tactical-input" value={foodForm.carbs} onChange={e => setFoodForm({ ...foodForm, carbs: e.target.value })} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.carbs} />
                                     </div>
                                     <div className="input-group">
                                         <label className="input-label">Fat (g)</label>
-                                        <input type="number" className="tactical-input" value={foodForm.fat} onChange={e => setFoodForm({ ...foodForm, fat: e.target.value })} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.fat} />
                                     </div>
                                     <div className="input-group">
                                         <label className="input-label">Cals (kcal)</label>
-                                        <input type="number" className="tactical-input" value={foodForm.cals} onChange={e => setFoodForm({ ...foodForm, cals: e.target.value })} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#fff' }} value={foodForm.cals} />
                                     </div>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     <div className="input-group">
                                         <label className="input-label">Fiber (g)</label>
-                                        <input type="number" className="tactical-input" value={foodForm.fiber} onChange={e => setFoodForm({ ...foodForm, fiber: e.target.value })} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.fiber} />
                                     </div>
                                     <div className="input-group">
                                         <label className="input-label">Sat Fat (g)</label>
-                                        <input type="number" className="tactical-input" value={foodForm.satFat} onChange={e => setFoodForm({ ...foodForm, satFat: e.target.value })} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.satFat} />
                                     </div>
                                 </div>
                                 <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
