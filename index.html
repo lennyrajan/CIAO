@@ -98,12 +98,19 @@
         }
 
         function Onboarding({ onComplete }) {
-            const [form, setForm] = useState({ weight: 80, height: 180, age: 30, gender: 'male', units: 'metric' });
+            const [form, setForm] = useState({
+                name: '',
+                weight: 80,
+                height: 180,
+                age: 30,
+                gender: 'male',
+                units: 'metric',
+                goal: 'cut'
+            });
 
             // Helper for Imperial Inputs (Feet/Inches)
             const [impHeight, setImpHeight] = useState({ ft: 5, in: 11 });
 
-            // Effect to sync separate Imp state if we switched back to Imperial (optional, but good for UX)
             useEffect(() => {
                 if (form.units === 'imperial') {
                     const totalInches = form.height / 2.54;
@@ -113,11 +120,11 @@
 
             const [showTargetAcquired, setShowTargetAcquired] = useState(false);
             const [finalUser, setFinalUser] = useState(null);
-            const [countdown, setCountdown] = useState(10);
+            const [countdown, setCountdown] = useState(5);
 
             useEffect(() => {
                 if (showTargetAcquired && countdown > 0) {
-                    const timer = setTimeout(() => setCountdown(c => c - 1), 150); // Fast tactical count (150ms per tick)
+                    const timer = setTimeout(() => setCountdown(c => c - 1), 200);
                     return () => clearTimeout(timer);
                 } else if (showTargetAcquired && countdown === 0) {
                     if (finalUser) {
@@ -128,16 +135,18 @@
 
             const handleSubmit = () => {
                 const bmr = Engine.calculateBMR(form.weight, form.height, form.age, form.gender);
-                const user = { ...form, bmr };
+                // Initialize new user with Rank 0
+                const user = {
+                    ...form,
+                    name: form.name.toUpperCase() || 'OPERATIVE',
+                    bmr,
+                    xp: 0,
+                    rankTitle: 'RECRUIT',
+                    rankIndex: 0
+                };
                 Storage.saveUser(user);
                 setFinalUser(user);
                 setShowTargetAcquired(true);
-            };
-
-            const handleProceed = () => {
-                if (finalUser) {
-                    onComplete(finalUser);
-                }
             };
 
             return (
@@ -145,6 +154,17 @@
                     <Header />
                     <div className="panel">
                         <span className="header-text">Identify Target</span>
+
+                        <div className="input-group">
+                            <label className="input-label">CODENAME</label>
+                            <input
+                                type="text"
+                                className="tactical-input"
+                                placeholder="ENTER NAME"
+                                value={form.name}
+                                onChange={e => setForm({ ...form, name: e.target.value })}
+                            />
+                        </div>
 
                         <div className="input-group">
                             <label className="input-label">Unit System</label>
@@ -170,6 +190,46 @@
                         <div className="input-group">
                             <label className="input-label">Height ({form.units === 'metric' ? 'cm' : 'ft / in'})</label>
                             {form.units === 'metric' ? (
+                                <input type="number" className="tactical-input" value={form.height} onChange={e => setForm({ ...form, height: parseFloat(e.target.value) })} />
+                            ) : (
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <input
+                                        type="number" className="tactical-input" placeholder="Ft"
+                                        value={impHeight.ft}
+                                        onChange={e => {
+                                            const ft = parseFloat(e.target.value) || 0;
+                                            setImpHeight({ ...impHeight, ft });
+                                            setForm(f => ({ ...f, height: ((ft * 12) + impHeight.in) * 2.54 }));
+                                        }}
+                                    />
+                                    <input
+                                        type="number" className="tactical-input" placeholder="In"
+                                        value={impHeight.in}
+                                        onChange={e => {
+                                            const inch = parseFloat(e.target.value) || 0;
+                                            setImpHeight({ ...impHeight, in: inch });
+                                            setForm(f => ({ ...f, height: ((impHeight.ft * 12) + inch) * 2.54 }));
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Age & Gender</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input type="number" className="tactical-input" style={{ flex: 1 }} value={form.age} onChange={e => setForm({ ...form, age: parseFloat(e.target.value) })} />
+                                <div style={{ display: 'flex', gap: '5px', flex: 2 }}>
+                                    <button className={`btn ${form.gender === 'male' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, gender: 'male' })}>MALE</button>
+                                    <button className={`btn ${form.gender === 'female' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, gender: 'female' })}>FEMALE</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Mission Objective</label>
+                            <div style={{ display: 'grid', gap: '5px' }}>
+                                <button className={`btn ${form.goal === 'cut' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'cut' })}>INFILTRATE [Fat Loss -500]</button>
                                 <button className={`btn ${form.goal === 'maintenance' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'maintenance' })}>RECON [Maintain]</button>
                                 <button className={`btn ${form.goal === 'bulk' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'bulk' })}>ASSAULT [Gain +300]</button>
                             </div>
@@ -179,51 +239,49 @@
                     </div>
                     <Footer />
 
-                    {/* TARGET ACQUIRED OVERLAY */ }
-            {
-                showTargetAcquired && (
-                    <div style={{
-                        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 999,
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                        <div className="panel" style={{
-                            border: '2px solid var(--hud-green)',
-                            padding: '40px',
-                            textAlign: 'center',
-                            maxWidth: '80%',
-                            boxShadow: '0 0 30px rgba(0, 255, 65, 0.2)',
-                            animation: 'fadeIn 0.5s ease-out'
+                    {/* TARGET ACQUIRED OVERLAY */}
+                    {showTargetAcquired && (
+                        <div style={{
+                            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 999,
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
                         }}>
-                            <div className="blink-cursor" style={{
-                                fontSize: '2em',
-                                color: 'var(--hud-green)',
-                                marginBottom: '20px',
-                                letterSpacing: '5px',
-                                fontWeight: 'bold',
-                                textShadow: '0 0 10px var(--hud-green)'
+                            <div className="panel" style={{
+                                border: '2px solid var(--hud-green)',
+                                padding: '40px',
+                                textAlign: 'center',
+                                maxWidth: '80%',
+                                boxShadow: '0 0 30px rgba(0, 255, 65, 0.2)',
+                                animation: 'fadeIn 0.5s ease-out'
                             }}>
-                                TARGET ACQUIRED
-                            </div>
-                            <div style={{ color: '#fff', marginBottom: '30px', fontFamily: 'monospace' }}>
-                                BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.
-                            </div>
-                            <div style={{
-                                fontSize: '4em',
-                                fontWeight: 'bold',
-                                color: 'var(--hud-green)',
-                                fontFamily: 'monospace',
-                                border: '2px dashed var(--hud-green)',
-                                display: 'inline-block',
-                                padding: '10px 30px',
-                                background: 'rgba(0, 255, 65, 0.1)'
-                            }}>
-                                T-MINUS {countdown}
+                                <div className="blink-cursor" style={{
+                                    fontSize: '2em',
+                                    color: 'var(--hud-green)',
+                                    marginBottom: '20px',
+                                    letterSpacing: '5px',
+                                    fontWeight: 'bold',
+                                    textShadow: '0 0 10px var(--hud-green)'
+                                }}>
+                                    TARGET ACQUIRED
+                                </div>
+                                <div style={{ color: '#fff', marginBottom: '30px', fontFamily: 'monospace' }}>
+                                    BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.
+                                </div>
+                                <div style={{
+                                    fontSize: '4em',
+                                    fontWeight: 'bold',
+                                    color: 'var(--hud-green)',
+                                    fontFamily: 'monospace',
+                                    border: '2px dashed var(--hud-green)',
+                                    display: 'inline-block',
+                                    padding: '10px 30px',
+                                    background: 'rgba(0, 255, 65, 0.1)'
+                                }}>
+                                    T-MINUS {countdown}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )
-            }
-                </div >
+                    )}
+                </div>
             );
         }
 
