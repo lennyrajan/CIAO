@@ -37,9 +37,9 @@ window.CIAO.Nutrition = {
         'whey': { protein: 24, fat: 1.5, carbs: 3, calories: 120, unit_g: 32 }, // 1 scoop
         'protein powder': { protein: 24, fat: 1.5, carbs: 3, calories: 120, unit_g: 32 },
         'casein': { protein: 24, fat: 1, carbs: 3, calories: 110, unit_g: 32 },
-        'yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59 }, // Greek Non-Fat
-        'greek yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59 },
-        'cottage cheese': { protein: 11, fat: 4.3, carbs: 3.4, calories: 98 },
+        'yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59, unit_g: 170 }, // Greek Non-Fat Cup
+        'greek yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59, unit_g: 170 },
+        'cottage cheese': { protein: 11, fat: 4.3, carbs: 3.4, calories: 98, unit_g: 113 }, // 1/2 cup
 
         // --- CARBOHYDRATES ---
         'rice': { protein: 2.7, fat: 0.3, carbs: 28, calories: 130 }, // White Cooked
@@ -84,14 +84,14 @@ window.CIAO.Nutrition = {
         'banana': { protein: 1.3, fat: 0.4, carbs: 27, calories: 105, unit_g: 118 }, // Medium
         'apple': { protein: 0.5, fat: 0.3, carbs: 25, calories: 95, unit_g: 182 }, // Medium
         'orange': { protein: 0.9, fat: 0.1, carbs: 12, calories: 47, unit_g: 130 },
-        'grapes': { protein: 0.7, fat: 0.2, carbs: 18, calories: 69 },
-        'strawberries': { protein: 0.7, fat: 0.3, carbs: 7.7, calories: 32 },
-        'blueberries': { protein: 0.7, fat: 0.3, carbs: 14, calories: 57 },
-        'raspberries': { protein: 1.2, fat: 0.7, carbs: 12, calories: 52 },
-        'melon': { protein: 0.8, fat: 0.2, carbs: 8, calories: 34 },
-        'watermelon': { protein: 0.6, fat: 0.2, carbs: 8, calories: 30 },
-        'pineapple': { protein: 0.5, fat: 0.1, carbs: 13, calories: 50 },
-        'mango': { protein: 0.8, fat: 0.4, carbs: 15, calories: 60 },
+        'grapes': { protein: 0.7, fat: 0.2, carbs: 18, calories: 69, unit_g: 80 }, // Cup
+        'strawberries': { protein: 0.7, fat: 0.3, carbs: 7.7, calories: 32, unit_g: 144 }, // Cup
+        'blueberries': { protein: 0.7, fat: 0.3, carbs: 14, calories: 57, unit_g: 148 }, // Cup
+        'raspberries': { protein: 1.2, fat: 0.7, carbs: 12, calories: 52, unit_g: 123 }, // Cup
+        'melon': { protein: 0.8, fat: 0.2, carbs: 8, calories: 34, unit_g: 160 }, // Wedge
+        'watermelon': { protein: 0.6, fat: 0.2, carbs: 8, calories: 30, unit_g: 280 }, // Wedge
+        'pineapple': { protein: 0.5, fat: 0.1, carbs: 13, calories: 50, unit_g: 165 }, // Cup
+        'mango': { protein: 0.8, fat: 0.4, carbs: 15, calories: 60, unit_g: 165 }, // Cup
         'kiwi': { protein: 1.1, fat: 0.5, carbs: 15, calories: 61, unit_g: 69 },
         'lemon': { protein: 1.1, fat: 0.3, carbs: 9, calories: 29 },
 
@@ -111,12 +111,12 @@ window.CIAO.Nutrition = {
         'zucchini': { protein: 1.2, fat: 0.3, carbs: 3.1, calories: 17 },
 
         // --- DAIRY / LIQUIDS ---
-        'milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61 }, // Whole
-        'whole milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61 },
-        'skim milk': { protein: 3.4, fat: 0.2, carbs: 4.8, calories: 35 },
-        'almond milk': { protein: 0.4, fat: 1.1, carbs: 0.6, calories: 13 }, // Unsweetened
-        'oat milk': { protein: 0.5, fat: 1.5, carbs: 6.5, calories: 42 },
-        'soy milk': { protein: 3.3, fat: 1.8, carbs: 6, calories: 54 },
+        'milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61, unit_g: 250 }, // Cup/Glass
+        'whole milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61, unit_g: 250 },
+        'skim milk': { protein: 3.4, fat: 0.2, carbs: 4.8, calories: 35, unit_g: 250 },
+        'almond milk': { protein: 0.4, fat: 1.1, carbs: 0.6, calories: 13, unit_g: 250 }, // Unsweetened
+        'oat milk': { protein: 0.5, fat: 1.5, carbs: 6.5, calories: 42, unit_g: 250 },
+        'soy milk': { protein: 3.3, fat: 1.8, carbs: 6, calories: 54, unit_g: 250 },
         'cream': { protein: 2.7, fat: 19, carbs: 3.7, calories: 195, unit_g: 15 }, // 1 tbsp
         'half and half': { protein: 3, fat: 11, carbs: 4, calories: 130, unit_g: 15 },
         'cheese': { protein: 25, fat: 33, carbs: 1.3, calories: 402, unit_g: 28 }, // Cheddar slice
@@ -138,6 +138,8 @@ window.CIAO.Nutrition = {
         'dark chocolate': { protein: 6, fat: 35, carbs: 50, calories: 600, unit_g: 20 },
         'soda': { protein: 0, fat: 0, carbs: 10, calories: 37, unit_g: 330 }, // Can 330ml
         'coke': { protein: 0, fat: 0, carbs: 10.6, calories: 42, unit_g: 330 }, // Can 330ml
+        'diet coke': { protein: 0, fat: 0, carbs: 0, calories: 1, unit_g: 330 }, // Can 330ml
+        'coke zero': { protein: 0, fat: 0, carbs: 0, calories: 1, unit_g: 330 }, // Can 330ml
         'beer': { protein: 0.5, fat: 0, carbs: 3.6, calories: 43, unit_g: 330 }, // Bottle/Can 330ml
         'wine': { protein: 0.1, fat: 0, carbs: 2.6, calories: 83, unit_g: 150 }, // Glass
         'vodka': { protein: 0, fat: 0, carbs: 0, calories: 231, unit_g: 30 }, // Shot
