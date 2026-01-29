@@ -190,12 +190,6 @@
         }
 
         function Dashboard({ user, onReset }) {
-            // ... (existing state) ...
-
-            // ... (useEffect logic exists here) ...
-
-            // ... (handlers) ...
-
             // Replaced handleResetSystem with prop call
             const handleResetSystem = onReset;
             // State: Itemized logs now
@@ -254,10 +248,6 @@
             const workoutBurn = useMemo(() => activityLog.reduce((sum, item) => sum + (item.type === 'WORKOUT' ? item.calories : 0), 0), [activityLog]);
 
             // Limit Adjust (Base TDEE + Workouts)
-            // Note: calculateDynamicTDEE includes step burn. We assume workouts are ADDITIVE to this.
-            // If calculateDynamicTDEE output is BMR + Steps, then we need to add WorkoutBurn to that for the dashboard.
-            // However, Engine.adjustToGoal relies on the input TDEE.
-
             const totalDailyBurn = tdee + workoutBurn; // BMR + Steps + Workouts
             const limit = Engine.adjustToGoal(totalDailyBurn, user.goal);
 
@@ -265,10 +255,6 @@
             const bmr = user.bmr;
             const stepBurn = Math.round((steps / 1000) * 40);
             const activeBurn = stepBurn + workoutBurn;
-            // const totalOutput = Math.round(bmr * 1.2 + activeBurn); // Original was BMR*1.2 ?? Wait, Engine.calculateDynamicTDEE does (BMR*1.2) + StepBurn.
-
-            // Let's stick to the Engine's output for consistency.
-            // Engine.calculateDynamicTDEE = (BMR * 1.2) + ((steps/1000)*40)
             const totalOutput = totalDailyBurn;
 
             // "Remaining" Logic (Target - Intake)
@@ -427,8 +413,6 @@
                 alert("Day Closed. Logs cleared for a fresh start.");
             };
 
-
-
             return (
                 <div className="container">
                     <Header />
@@ -466,52 +450,7 @@
                     {/* Dark Overlay for Modal */}
                     {showReport && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}></div>}
 
-                    {/* PANEL 1: MISSION BRIEFING (Calculation Transparency) */}
-                    <div className="panel">
-                        <span className="header-text">MISSION BRIEFING</span>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
-                            <div>
-                                <div className="input-label">BASE BMR</div>
-                                <div style={{ color: '#fff' }}>{Math.round(bmr)} <span style={{ fontSize: '0.8em', color: '#666' }}>(Mifflin St-Jeor)</span></div>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <div className="input-label">ACTIVE TDEE</div>
-                                <div style={{ color: '#fff' }}>{Math.round(totalOutput)} <span style={{ fontSize: '0.8em', color: '#666' }}>(BMR + Active)</span></div>
-                            </div>
-                        </div>
-
-                        <div style={{ borderTop: '1px dashed #444', margin: '10px 0', padding: '10px 0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span className="input-label">STRATEGY</span>
-                                <span style={{ color: user.goal === 'cut' ? 'var(--hud-green)' : (user.goal === 'bulk' ? 'var(--hud-red)' : 'var(--hud-blue)') }}>
-                                    {user.goal === 'cut' ? 'INFILTRATE (-500)' : (user.goal === 'bulk' ? 'ASSAULT (+300)' : 'RECON (MAINTAIN)')}
-                                </span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '5px' }}>
-                                <span className="input-label" style={{ color: 'var(--hud-green)' }}>PRIMARY TARGET</span>
-                                <span className="value-huge" style={{ fontSize: '1.5em' }}>{limit} <span style={{ fontSize: '0.5em' }}>kcal</span></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* PANEL 2: MISSION STATUS (INTAKE) */}
-                    <div className="panel" style={{ textAlign: 'center', borderColor: status.color }}>
-                        <span className="header-text">MISSION INTAKE</span>
-                        <div className="value-huge" style={{ color: status.color === 'red' ? 'var(--hud-red)' : 'var(--hud-green)' }}>
-                            {intake.calories}
-                        </div>
-                        <span className="input-label" style={{ letterSpacing: '5px' }}>KCAL CONSUMED</span>
-
-                        <div className="gauge-bar" style={{ marginTop: '15px' }}>
-                            <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / limit) * 100)}%` }}></div>
-                        </div>
-                        <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
-                            MISSION TARGET: {limit}
-                        </div>
-                    </div>
-
-                    {/* PANEL 3: REMAINING BUDGET */}
+                    {/* PANEL 1: REMAINING BUDGET (Critical Status) */}
                     <div className="panel" style={{ borderColor: balanceColor }}>
                         <span className="header-text">REMAINING RATION</span>
                         <div style={{ textAlign: 'center' }}>
@@ -525,15 +464,7 @@
                         </div>
                     </div>
 
-                    {/* Quick Stats */}
-                    <div className="panel">
-                        <Gauge label="PROTEIN" value={intake.protein} max={180} unit="g" colorClass="fill-blue" />
-                        <Gauge label="CARBS" value={intake.carbs} max={200} unit="g" colorClass="fill-orange" />
-                        <Gauge label="FAT" value={intake.fat} max={70} unit="g" colorClass="fill-purple" />
-                        <Gauge label="CALORIES" value={intake.calories} max={limit} unit="kcal" colorClass={status.color === 'red' ? 'fill-red' : 'fill-green'} />
-                    </div>
-
-                    {/* ACTIONS & LOGGING */}
+                    {/* PANEL 2: TACTICAL OPS (Inputs) */}
                     <div className="panel">
                         <span className="header-text">TACTICAL OPS</span>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -618,6 +549,30 @@
                         </div>
                     </div>
 
+                    {/* PANEL 3: MISSION STATUS (INTAKE) */}
+                    <div className="panel" style={{ textAlign: 'center', borderColor: status.color }}>
+                        <span className="header-text">MISSION INTAKE</span>
+                        <div className="value-huge" style={{ color: status.color === 'red' ? 'var(--hud-red)' : 'var(--hud-green)' }}>
+                            {intake.calories}
+                        </div>
+                        <span className="input-label" style={{ letterSpacing: '5px' }}>KCAL CONSUMED</span>
+
+                        <div className="gauge-bar" style={{ marginTop: '15px' }}>
+                            <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / limit) * 100)}%` }}></div>
+                        </div>
+                        <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
+                            MISSION TARGET: {limit}
+                        </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="panel">
+                        <Gauge label="PROTEIN" value={intake.protein} max={180} unit="g" colorClass="fill-blue" />
+                        <Gauge label="CARBS" value={intake.carbs} max={200} unit="g" colorClass="fill-orange" />
+                        <Gauge label="FAT" value={intake.fat} max={70} unit="g" colorClass="fill-purple" />
+                        <Gauge label="CALORIES" value={intake.calories} max={limit} unit="kcal" colorClass={status.color === 'red' ? 'fill-red' : 'fill-green'} />
+                    </div>
+
                     {/* MISSION LOG (HISTORY) */}
                     <div className="panel">
                         <span className="header-text" style={{ color: 'var(--text-dim)' }}>MISSION LOG</span>
@@ -657,6 +612,31 @@
                                     <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>[DEL]</button>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+
+                    {/* FOOTER: MISSION BRIEFING (Reference Info) */}
+                    <div className="panel" style={{ opacity: 0.8 }}>
+                        <span className="header-text">SYSTEM PARAMETERS</span>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
+                            <div>
+                                <div className="input-label">BASE BMR</div>
+                                <div style={{ color: '#fff' }}>{Math.round(bmr)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div className="input-label">ACTIVE TDEE</div>
+                                <div style={{ color: '#fff' }}>{Math.round(totalOutput)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
+                            </div>
+                        </div>
+
+                        <div style={{ borderTop: '1px dashed #444', margin: '10px 0', padding: '10px 0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span className="input-label">STRATEGY</span>
+                                <span style={{ color: user.goal === 'cut' ? 'var(--hud-green)' : (user.goal === 'bulk' ? 'var(--hud-red)' : 'var(--hud-blue)') }}>
+                                    {user.goal === 'cut' ? 'INFILTRATE (-500)' : (user.goal === 'bulk' ? 'ASSAULT (+300)' : 'RECON (MAINTAIN)')}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -778,6 +758,5 @@
         root.render(<App />);
     </script>
 </body>
-
 
 </html>
