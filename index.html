@@ -31,6 +31,44 @@
 
         // --- COMPONENTS ---
 
+        /* --- UI COMPONENTS --- */
+
+        function Header() {
+            return (
+                <div className="site-header">
+                    <div className="title-main">CIAO</div>
+                    <div className="title-sub">TACTICAL RECON</div>
+                    <div className="site-desc">CALORIC INTAKE ASSESSMENT & OPERATIONS // BODY METRICS DASHBOARD</div>
+                </div>
+            );
+        }
+
+        function Footer() {
+            const [visitors, setVisitors] = useState(4200);
+
+            useEffect(() => {
+                const key = 'ciao_visitor_count';
+                let current = localStorage.getItem(key);
+
+                if (!current) {
+                    // Random start between 4000 and 9000
+                    current = 4000 + Math.floor(Math.random() * 5000);
+                } else {
+                    current = parseInt(current) + 1;
+                }
+
+                localStorage.setItem(key, current);
+                setVisitors(current);
+            }, []);
+
+            return (
+                <div className="site-footer">
+                    <div className="footer-credit">Made with ☕ by Lenny Rajan</div>
+                    <div className="visitor-count blink-cursor">VISITOR #{visitors}</div>
+                </div>
+            );
+        }
+
         function Gauge({ label, value, max, colorClass, unit }) {
             const percent = Math.min(100, Math.max(0, (value / max) * 100));
             return (
@@ -222,6 +260,7 @@
 
             return (
                 <div className="container">
+                    <Header />
 
                     {/* Report Modal */}
                     {showReport && (
@@ -457,10 +496,7 @@
                         </div>
                     )}
 
-                    {/* Footer */}
-                    <div className="footer">
-                        Made with ☕ by Lenny Rajan
-                    </div>
+                    <Footer />
                 </div>
             );
         }
@@ -494,10 +530,11 @@
         root.render(<App />);
     </script>
 </body>
-  <footer>
-  <div>Made with ☕ by Lenny Rajan</div>
-  <div id="fakeVisitorCount" style="font-weight:600; margin-top:0.2rem;">
-  Visitors: 4723
-  </div>
-  </footer>
+<footer>
+    <div>Made with ☕ by Lenny Rajan</div>
+    <div id="fakeVisitorCount" style="font-weight:600; margin-top:0.2rem;">
+        Visitors: 4723
+    </div>
+</footer>
+
 </html>

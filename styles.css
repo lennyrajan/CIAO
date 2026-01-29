@@ -18,11 +18,12 @@
 body {
     background-color: var(--hud-bg);
     color: var(--text-main);
-    font-family: 'Courier New', Courier, monospace; /* Fallback, prefer nice tech font if available */
+    font-family: 'Courier New', Courier, monospace;
+    /* Fallback, prefer nice tech font if available */
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    background-image: 
+    background-image:
         linear-gradient(var(--grid-line) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 20px 20px;
@@ -33,7 +34,8 @@ body {
     max-width: 600px;
     margin: 0 auto;
     padding: 1rem;
-    padding-bottom: 80px; /* Space for navbar */
+    padding-bottom: 80px;
+    /* Space for navbar */
 }
 
 .panel {
@@ -42,7 +44,7 @@ body {
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     position: relative;
 }
 
@@ -50,12 +52,16 @@ body {
     /* Corner accent */
     content: '';
     position: absolute;
-    top: 0; left: 0;
-    width: 0; height: 0;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
     border-top: 2px solid var(--hud-green);
-    border-right: 2px solid transparent; 
-    border-left: 0; border-bottom: 0;
-    width: 10px; height: 10px;
+    border-right: 2px solid transparent;
+    border-left: 0;
+    border-bottom: 0;
+    width: 10px;
+    height: 10px;
 }
 
 .header-text {
@@ -102,6 +108,7 @@ body {
     border-color: var(--hud-red);
     color: var(--hud-red);
 }
+
 .btn-danger:hover {
     background: var(--hud-red);
 }
@@ -109,12 +116,14 @@ body {
 .input-group {
     margin-bottom: 1rem;
 }
+
 .input-label {
     display: block;
     color: var(--text-dim);
     margin-bottom: 4px;
     font-size: 0.8em;
 }
+
 .tactical-input {
     background: #000;
     border: 1px solid #333;
@@ -125,6 +134,7 @@ body {
     font-family: inherit;
     font-size: 1.1em;
 }
+
 .tactical-input:focus {
     border-color: var(--hud-green);
     outline: none;
@@ -138,33 +148,114 @@ body {
     overflow: hidden;
     margin-top: 5px;
 }
+
 .gauge-fill {
     height: 100%;
     transition: width 0.3s ease;
 }
 
-.fill-green { background: var(--hud-green); }
-.fill-red { background: var(--hud-red); }
-.fill-blue { background: var(--hud-blue); }
-.fill-orange { background: var(--hud-orange); }
-.fill-purple { background: var(--hud-purple); }
+.fill-green {
+    background: var(--hud-green);
+}
+
+.fill-red {
+    background: var(--hud-red);
+}
+
+.fill-blue {
+    background: var(--hud-blue);
+}
+
+.fill-orange {
+    background: var(--hud-orange);
+}
+
+.fill-purple {
+    background: var(--hud-purple);
+}
 
 /* Animations */
 @keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
+
 .animate-blink {
     animation: blink 2s infinite;
 }
 
-/* Footer */
-.footer {
+
+/* --- HEADER --- */
+.site-header {
     text-align: center;
-    padding: 20px;
+    border-bottom: 2px solid var(--hud-blue);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    background: linear-gradient(180deg, rgba(0, 212, 255, 0.05) 0%, transparent 100%);
+}
+
+.title-main {
+    font-size: 3em;
+    font-weight: 900;
+    color: var(--hud-blue);
+    letter-spacing: 5px;
+    text-shadow: 0 0 15px var(--hud-blue);
+    margin: 0;
+    line-height: 1;
+}
+
+.title-sub {
+    font-size: 1em;
+    color: var(--hud-green);
+    letter-spacing: 3px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.site-desc {
+    color: var(--text-dim);
+    font-size: 0.75em;
+    margin-top: 10px;
+    font-family: monospace;
+    opacity: 0.8;
+}
+
+/* --- FOOTER --- */
+.site-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--hud-green-dim);
     color: var(--text-dim);
     font-size: 0.8em;
-    margin-top: 2rem;
-    border-top: 1px solid #222;
+}
+
+.footer-credit {
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+.visitor-count {
+    display: inline-block;
+    border: 1px solid var(--hud-green-dim);
+    padding: 2px 8px;
+    color: var(--hud-green);
+    font-family: monospace;
+    font-size: 0.9em;
+    background: rgba(0, 255, 65, 0.05);
+}
+
+.blink-cursor::after {
+    content: '_';
+    animation: blink 1s step-end infinite;
 }
