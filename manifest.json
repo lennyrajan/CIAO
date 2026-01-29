@@ -1,6 +1,7 @@
 {
     "name": "CIAO | Tactical Body Recon",
     "short_name": "CIAO",
+    "id": "ciao-tactical-recon",
     "description": "Tactical Caloric Intake Assessment & Operations (CIAO) tracker and body metrics dashboard.",
     "start_url": "./index.html",
     "display": "standalone",
