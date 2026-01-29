@@ -170,47 +170,6 @@
                         <div className="input-group">
                             <label className="input-label">Height ({form.units === 'metric' ? 'cm' : 'ft / in'})</label>
                             {form.units === 'metric' ? (
-                                <input type="number" className="tactical-input" value={form.height} onChange={e => setForm({ ...form, height: parseFloat(e.target.value) })} />
-                            ) : (
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <input
-                                        type="number" className="tactical-input" placeholder="Ft"
-                                        value={impHeight.ft}
-                                        onChange={e => {
-                                            const ft = parseFloat(e.target.value) || 0;
-                                            setImpHeight({ ...impHeight, ft });
-                                            setForm(f => ({ ...f, height: ((ft * 12) + impHeight.in) * 2.54 }));
-                                        }}
-                                    />
-                                    <input
-                                        type="number" className="tactical-input" placeholder="In"
-                                        value={impHeight.in}
-                                        onChange={e => {
-                                            const inch = parseFloat(e.target.value) || 0;
-                                            setImpHeight({ ...impHeight, in: inch });
-                                            setForm(f => ({ ...f, height: ((impHeight.ft * 12) + inch) * 2.54 }));
-                                        }}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                        <div className="input-group">
-                            <label className="input-label">Age</label>
-                            <input type="number" className="tactical-input" value={form.age} onChange={e => setForm({ ...form, age: parseFloat(e.target.value) })} />
-                        </div>
-
-                        <div className="input-group">
-                            <label className="input-label">Bio-Gender (BMR Calc)</label>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <button className={`btn ${form.gender === 'male' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, gender: 'male' })}>MALE</button>
-                                <button className={`btn ${form.gender === 'female' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, gender: 'female' })}>FEMALE</button>
-                            </div>
-                        </div>
-
-                        <div className="input-group">
-                            <label className="input-label">Mission Objective</label>
-                            <div style={{ display: 'grid', gap: '5px' }}>
-                                <button className={`btn ${form.goal === 'cut' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'cut' })}>INFILTRATE [Fat Loss -500]</button>
                                 <button className={`btn ${form.goal === 'maintenance' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'maintenance' })}>RECON [Maintain]</button>
                                 <button className={`btn ${form.goal === 'bulk' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'bulk' })}>ASSAULT [Gain +300]</button>
                             </div>
@@ -220,49 +179,51 @@
                     </div>
                     <Footer />
 
-                    {/* TARGET ACQUIRED OVERLAY */}
-                    {showTargetAcquired && (
-                        <div style={{
-                            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 999,
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                    {/* TARGET ACQUIRED OVERLAY */ }
+            {
+                showTargetAcquired && (
+                    <div style={{
+                        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 999,
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <div className="panel" style={{
+                            border: '2px solid var(--hud-green)',
+                            padding: '40px',
+                            textAlign: 'center',
+                            maxWidth: '80%',
+                            boxShadow: '0 0 30px rgba(0, 255, 65, 0.2)',
+                            animation: 'fadeIn 0.5s ease-out'
                         }}>
-                            <div className="panel" style={{
-                                border: '2px solid var(--hud-green)',
-                                padding: '40px',
-                                textAlign: 'center',
-                                maxWidth: '80%',
-                                boxShadow: '0 0 30px rgba(0, 255, 65, 0.2)',
-                                animation: 'fadeIn 0.5s ease-out'
+                            <div className="blink-cursor" style={{
+                                fontSize: '2em',
+                                color: 'var(--hud-green)',
+                                marginBottom: '20px',
+                                letterSpacing: '5px',
+                                fontWeight: 'bold',
+                                textShadow: '0 0 10px var(--hud-green)'
                             }}>
-                                <div className="blink-cursor" style={{
-                                    fontSize: '2em',
-                                    color: 'var(--hud-green)',
-                                    marginBottom: '20px',
-                                    letterSpacing: '5px',
-                                    fontWeight: 'bold',
-                                    textShadow: '0 0 10px var(--hud-green)'
-                                }}>
-                                    TARGET ACQUIRED
-                                </div>
-                                <div style={{ color: '#fff', marginBottom: '30px', fontFamily: 'monospace' }}>
-                                    BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.
-                                </div>
-                                <div style={{
-                                    fontSize: '4em',
-                                    fontWeight: 'bold',
-                                    color: 'var(--hud-green)',
-                                    fontFamily: 'monospace',
-                                    border: '2px dashed var(--hud-green)',
-                                    display: 'inline-block',
-                                    padding: '10px 30px',
-                                    background: 'rgba(0, 255, 65, 0.1)'
-                                }}>
-                                    T-MINUS {countdown}
-                                </div>
+                                TARGET ACQUIRED
+                            </div>
+                            <div style={{ color: '#fff', marginBottom: '30px', fontFamily: 'monospace' }}>
+                                BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.
+                            </div>
+                            <div style={{
+                                fontSize: '4em',
+                                fontWeight: 'bold',
+                                color: 'var(--hud-green)',
+                                fontFamily: 'monospace',
+                                border: '2px dashed var(--hud-green)',
+                                display: 'inline-block',
+                                padding: '10px 30px',
+                                background: 'rgba(0, 255, 65, 0.1)'
+                            }}>
+                                T-MINUS {countdown}
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )
+            }
+                </div >
             );
         }
 
@@ -580,6 +541,28 @@
             return (
                 <div className="container">
                     <Header />
+
+                    {/* PROMOTION MODAL */}
+                    {showPromo && (
+                        <div className="panel" style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                            <div style={{ fontSize: '4em', marginBottom: '20px' }}>⭐</div>
+                            <h1 className="header-text" style={{ fontSize: '2em', color: 'var(--hud-blue)', marginBottom: '10px' }}>FIELD PROMOTION</h1>
+                            <div style={{ color: '#888', marginBottom: '30px' }}>EXCELLENT WORK, OPERATIVE.</div>
+
+                            <div style={{ background: '#111', padding: '20px', borderRadius: '8px', border: '1px solid var(--hud-blue)', width: '80%' }}>
+                                <div style={{ fontSize: '0.8em', color: '#666' }}>NEW RANK ASSIGNED</div>
+                                <div style={{ fontSize: '2.5em', fontWeight: 'bold', color: '#fff', marginTop: '10px' }}>{newRank}</div>
+                            </div>
+
+                            <button
+                                className="btn btn-primary"
+                                style={{ marginTop: '50px', width: '200px', fontSize: '1.2em' }}
+                                onClick={() => setShowPromo(false)}
+                            >
+                                ACKNOWLEDGE
+                            </button>
+                        </div>
+                    )}
 
                     {/* Report Modal */}
                     {showReport && (
