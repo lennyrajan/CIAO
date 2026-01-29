@@ -111,11 +111,21 @@
                 }
             }, [form.units]);
 
+            const [showTargetAcquired, setShowTargetAcquired] = useState(false);
+            const [finalUser, setFinalUser] = useState(null);
+
             const handleSubmit = () => {
                 const bmr = Engine.calculateBMR(form.weight, form.height, form.age, form.gender);
                 const user = { ...form, bmr };
                 Storage.saveUser(user);
-                onComplete(user);
+                setFinalUser(user);
+                setShowTargetAcquired(true);
+            };
+
+            const handleProceed = () => {
+                if (finalUser) {
+                    onComplete(finalUser);
+                }
             };
 
             return (
@@ -198,6 +208,48 @@
                         <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSubmit}>Initialize System</button>
                     </div>
                     <Footer />
+
+                    {/* TARGET ACQUIRED OVERLAY */}
+                    {showTargetAcquired && (
+                        <div style={{
+                            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 999,
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <div className="panel" style={{
+                                border: '2px solid var(--hud-green)',
+                                padding: '40px',
+                                textAlign: 'center',
+                                maxWidth: '80%',
+                                boxShadow: '0 0 30px rgba(0, 255, 65, 0.2)',
+                                animation: 'fadeIn 0.5s ease-out'
+                            }}>
+                                <div className="blink-cursor" style={{
+                                    fontSize: '2em',
+                                    color: 'var(--hud-green)',
+                                    marginBottom: '20px',
+                                    letterSpacing: '5px',
+                                    fontWeight: 'bold',
+                                    textShadow: '0 0 10px var(--hud-green)'
+                                }}>
+                                    TARGET ACQUIRED
+                                </div>
+                                <div style={{ color: '#fff', marginBottom: '30px', fontFamily: 'monospace' }}>
+                                    BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.
+                                </div>
+                                <button className="btn" style={{
+                                    background: 'var(--hud-green)',
+                                    color: '#000',
+                                    fontWeight: 'bold',
+                                    fontSize: '1.2em',
+                                    padding: '15px 40px',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }} onClick={handleProceed}>
+                                    PROCEED
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }
