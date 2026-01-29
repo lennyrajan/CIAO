@@ -42,5 +42,12 @@ window.CIAO.Storage = {
 
     clearUser: function () {
         localStorage.removeItem(this.KEY_USER);
+    },
+
+    clearAll: function () {
+        localStorage.removeItem(this.KEY_USER);
+        localStorage.removeItem(this.KEY_LOGS);
+        // Also clear visitor count for true factory reset
+        localStorage.removeItem('ciao_visitor_count');
     }
 };
