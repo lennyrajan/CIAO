@@ -227,7 +227,56 @@
             if (remaining < 0) balanceColor = 'var(--hud-red)';
             else if (remaining < 200) balanceColor = 'var(--hud-green)';
 
+            // Smart Activity Form State
+            const [actType, setActType] = useState('steps'); // steps, run, cycle, lift, sport, custom
+            const [actForm, setActForm] = useState({ steps: '', duration: '', distance: '', name: '', calories: '' });
+
             // Handlers
+            const handleAddSmartActivity = () => {
+                let entry = null;
+
+                if (actType === 'steps') {
+                    const s = parseInt(actForm.steps);
+                    if (s && !isNaN(s)) {
+                        entry = { type: 'STEPS', amount: s };
+                    }
+                } else if (actType === 'custom') {
+                    const cals = parseInt(actForm.calories);
+                    if (actForm.name && cals && !isNaN(cals)) {
+                        entry = { type: 'WORKOUT', name: actForm.name, calories: cals };
+                    }
+                } else {
+                    // Smart MET Calculation
+                    const duration = parseFloat(actForm.duration);
+                    if (duration && !isNaN(duration)) {
+                        const weight = user.weight; // Ensure user weight is available
+                        const dist = parseFloat(actForm.distance);
+
+                        // Infer intensity from distance if available (e.g. speed)
+                        // For now we pass type directly to Engine
+
+                        const burn = Engine.calculateActivityBurn(weight, actType, duration);
+
+                        // Create a descriptive name
+                        let name = actType.toUpperCase();
+                        if (dist) name += ` (${dist}km)`;
+                        name += ` - ${duration}m`;
+
+                        entry = { type: 'WORKOUT', name: name, calories: burn };
+                    }
+                }
+
+                if (entry) {
+                    setActivityLog(prev => [...prev, {
+                        id: Date.now().toString(),
+                        timestamp: Date.now(),
+                        ...entry
+                    }]);
+                    // Reset proper fields
+                    setActForm({ steps: '', duration: '', distance: '', name: '', calories: '' });
+                }
+            };
+
             const handleAddFood = () => {
                 const base = {
                     protein: parseFloat(foodForm.prot) || 0,
@@ -417,22 +466,56 @@
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             <button className="btn" onClick={() => setIsLogOpen(!isLogOpen)}>LOG FOOD</button>
 
-                            {/* Activity Logger */}
+                            {/* Smart Activity Logger */}
                             <div className="input-group" style={{ margin: 0 }}>
-                                <label className="input-label">ADD STEPS</label>
-                                <div style={{ display: 'flex', gap: '5px' }}>
-                                    <input type="number" className="tactical-input" id="stepsInput" placeholder="e.g. 5000" style={{ width: '60%' }} />
-                                    <button className="btn" style={{ width: '40%' }} onClick={handleAddSteps}>ADD</button>
-                                </div>
-                            </div>
+                                <label className="input-label">LOG ACTIVITY</label>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
 
-                            {/* Workout Logger */}
-                            <div className="input-group" style={{ marginTop: '10px' }}>
-                                <label className="input-label">MANUAL WORKOUT (Lifting, etc)</label>
-                                <div style={{ display: 'flex', gap: '5px' }}>
-                                    <input className="tactical-input" id="workoutName" placeholder="Desc (e.g. Leg Day)" style={{ width: '50%' }} />
-                                    <input type="number" className="tactical-input" id="workoutCals" placeholder="Kcal" style={{ width: '30%' }} />
-                                    <button className="btn" style={{ width: '20%' }} onClick={handleAddWorkout}>ADD</button>
+                                    {/* Type Selector */}
+                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                        <select className="tactical-input" style={{ width: '100%', cursor: 'pointer', background: '#222' }} value={actType} onChange={e => setActType(e.target.value)}>
+                                            <option value="steps">STEPS (Standard)</option>
+                                            <option value="run">RUNNING (High Intensity)</option>
+                                            <option value="cycle">CYCLING (Moderate)</option>
+                                            <option value="lift">LIFTING / GYM</option>
+                                            <option value="sport">SPORTS (General)</option>
+                                            <option value="custom">MANUAL ENTRY</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Dynamic Inputs */}
+                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                        {actType === 'steps' && (
+                                            <input type="number" className="tactical-input" placeholder="Count" value={actForm.steps} onChange={e => setActForm({ ...actForm, steps: e.target.value })} style={{ flex: 1 }} />
+                                        )}
+
+                                        {(actType === 'run' || actType === 'cycle') && (
+                                            <>
+                                                <input type="number" className="tactical-input" placeholder="Mins" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
+                                                <input type="number" className="tactical-input" placeholder="Km (Opt)" value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
+                                            </>
+                                        )}
+
+                                        {(actType === 'lift' || actType === 'sport') && (
+                                            <input type="number" className="tactical-input" placeholder="Duration (Minutes)" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
+                                        )}
+
+                                        {actType === 'custom' && (
+                                            <>
+                                                <input className="tactical-input" placeholder="Desc" value={actForm.name} onChange={e => setActForm({ ...actForm, name: e.target.value })} style={{ flex: 1 }} />
+                                                <input type="number" className="tactical-input" placeholder="Kcal" value={actForm.calories} onChange={e => setActForm({ ...actForm, calories: e.target.value })} style={{ width: '80px' }} />
+                                            </>
+                                        )}
+
+                                        <button className="btn" style={{ width: 'auto', padding: '0 15px' }} onClick={handleAddSmartActivity}>ADD</button>
+                                    </div>
+
+                                    {/* Preview (Optional Enhancement) */}
+                                    {actType !== 'steps' && actType !== 'custom' && actForm.duration && (
+                                        <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'var(--hud-green)' }}>
+                                            ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0)} kcal
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

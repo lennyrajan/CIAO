@@ -16,6 +16,29 @@ window.CIAO.Engine = {
         return (10 * weightKg) + (6.25 * heightCm) + (5 * ageYears) + s;
     },
 
+    calculateActivityBurn: function (weightKg, type, durationMinutes, intensity = 'moderate') {
+        // MET Values (Metabolic Equivalent of Task)
+        const METS = {
+            'steps': 0, // Handled separately
+            'walk': 3.5,
+            'run': 8.0, // Avg 5mph
+            'cycle': 7.5, // Avg moderate
+            'lift': 4.5, // Resistance training
+            'sport': 7.0, // General competitive
+            'hiit': 8.0,
+            'custom': 0
+        };
+
+        // Intensity Modifiers (Simple multiplier if needed, or specific overrides)
+        // For now, we use base METs. Smart logic can infer intensity from distance if provided later.
+
+        let met = METS[type] || 3.0; // Default to light activity if unknown
+
+        // Formula: Calories = MET * Weight(kg) * Duration(hours)
+        const durationHours = durationMinutes / 60;
+        return Math.round(met * weightKg * durationHours);
+    },
+
     /**
      * Calculate Lean Body Mass based BMR (Katch-McArdle) - Optional alternative
      */
