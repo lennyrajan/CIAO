@@ -194,7 +194,6 @@
                                 </div>
                             )}
                         </div>
-
                         <div className="input-group">
                             <label className="input-label">Age</label>
                             <input type="number" className="tactical-input" value={form.age} onChange={e => setForm({ ...form, age: parseFloat(e.target.value) })} />
@@ -611,528 +610,529 @@
 
                     {/* TRENDS / INTEL VIEW */}
                     {showTrends && (
-                        <div className="panel" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90, background: '#000', overflowY: 'auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                                <span className="header-text">INTEL REPORT (LAST 7 SORTIES)</span>
-                                <button className="btn" style={{ width: 'auto' }} onClick={() => setShowTrends(false)}>CLOSE</button>
-                            </div>
-
-                            {history.length === 0 ? (
-                                <div style={{ textAlign: 'center', color: '#555', marginTop: '50px' }}>NO INTEL ARCHIVED. CLOSE A DAY TO GENERATE REPORTS.</div>
-                            ) : (
-                                <div>
-                                    {/* Chart Visualization (Simple Bars) */}
-                                    <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '5px', padding: '10px', borderBottom: '1px solid #333', marginBottom: '20px' }}>
-                                        {chartData.map((d, i) => (
-                                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                                                <div style={{
-                                                    width: '100%',
-                                                    background: (d.intake?.calories || 0) > limit ? 'var(--hud-red)' : 'var(--hud-green)',
-                                                    height: `${((d.intake?.calories || 0) / maxTrackedCals) * 100}%`,
-                                                    minHeight: '2px',
-                                                    opacity: 0.8
-                                                }}></div>
-                                                <span style={{ fontSize: '0.6em', color: '#666' }}>{d.date.slice(5)}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Data Table */}
-                                    {history.map((h, i) => {
-                                        const net = (h.intake?.calories || 0) - (h.output || 0); // Need output stored, fallback 0
-                                        let statusLabel = 'MAINTENANCE';
-                                        let statusColor = '#888';
-
-                                        if (net < -100) {
-                                            statusLabel = `DEFICIT ${net}`;
-                                            statusColor = 'var(--hud-green)';
-                                        } else if (net > 100) {
-                                            statusLabel = `SURPLUS +${net}`;
-                                            statusColor = 'var(--hud-red)';
-                                        }
-
-                                        return (
-                                            <div key={i} style={{ borderBottom: '1px solid #222', padding: '10px 0', fontSize: '0.9em' }}>
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', marginBottom: '5px' }}>
-                                                    <div>
-                                                        <div style={{ color: 'var(--hud-blue)', fontWeight: 'bold' }}>{h.date}</div>
-                                                        <div style={{ fontSize: '0.8em', color: '#888' }}>Weight: {h.weight || '?'} | Steps: {h.steps || 0}</div>
-                                                    </div>
-                                                    <div style={{ textAlign: 'right' }}>
-                                                        <div style={{ color: statusColor, fontWeight: 'bold' }}>{statusLabel}</div>
-                                                        <div style={{ fontSize: '0.8em', color: '#666' }}>Target: {limit} | In: {h.intake?.calories || 0}</div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Macro Breakdown Row */}
-                                                <div style={{ background: '#111', padding: '5px', borderRadius: '4px', fontSize: '0.8em', display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
-                                                    <span>P: <span style={{ color: '#fff' }}>{h.intake?.protein || 0}</span></span>
-                                                    <span>C: <span style={{ color: '#fff' }}>{h.intake?.carbs || 0}</span></span>
-                                                    <span>F: <span style={{ color: '#fff' }}>{h.intake?.fat || 0}</span></span>
-                                                    <span>Fib: <span style={{ color: '#fff' }}>{h.intake?.fiber || 0}</span></span>
-                                                    <span>Sat: <span style={{ color: '#fff' }}>{h.intake?.satFat || 0}</span></span>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90, background: '#000', overflowY: 'auto' }}>
+                            <div className="container" style={{ minHeight: '100vh', background: '#000' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', marginTop: '10px' }}>
+                                    <span className="header-text">INTEL REPORT (LAST 7 SORTIES)</span>
+                                    <button className="btn" style={{ width: 'auto' }} onClick={() => setShowTrends(false)}>CLOSE</button>
                                 </div>
-                            )}
-                        </div>
+
+                                {history.length === 0 ? (
+                                    <div style={{ textAlign: 'center', color: '#555', marginTop: '50px' }}>NO INTEL ARCHIVED. CLOSE A DAY TO GENERATE REPORTS.</div>
+                                ) : (
+                                    <div>
+                                        {/* Chart Visualization (Simple Bars) */}
+                                        <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '5px', padding: '10px', borderBottom: '1px solid #333', marginBottom: '20px' }}>
+                                            {chartData.map((d, i) => (
+                                                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                                    <div style={{
+                                                        width: '100%',
+                                                        background: (d.intake?.calories || 0) > limit ? 'var(--hud-red)' : 'var(--hud-green)',
+                                                        height: `${((d.intake?.calories || 0) / maxTrackedCals) * 100}%`,
+                                                        minHeight: '2px',
+                                                        opacity: 0.8
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.6em', color: '#666' }}>{d.date.slice(5)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Data Table */}
+                                        {history.map((h, i) => {
+                                            const net = (h.intake?.calories || 0) - (h.output || 0); // Need output stored, fallback 0
+                                            let statusLabel = 'MAINTENANCE';
+                                            let statusColor = '#888';
+
+                                            if (net < -100) {
+                                                statusLabel = `DEFICIT ${net}`;
+                                                statusColor = 'var(--hud-green)';
+                                            } else if (net > 100) {
+                                                statusLabel = `SURPLUS +${net}`;
+                                                statusColor = 'var(--hud-red)';
+                                            }
+
+                                            return (
+                                                <div key={i} style={{ borderBottom: '1px solid #222', padding: '10px 0', fontSize: '0.9em' }}>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', marginBottom: '5px' }}>
+                                                        <div>
+                                                            <div style={{ color: 'var(--hud-blue)', fontWeight: 'bold' }}>{h.date}</div>
+                                                            <div style={{ fontSize: '0.8em', color: '#888' }}>Weight: {h.weight || '?'} | Steps: {h.steps || 0}</div>
+                                                        </div>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <div style={{ color: statusColor, fontWeight: 'bold' }}>{statusLabel}</div>
+                                                            <div style={{ fontSize: '0.8em', color: '#666' }}>Target: {limit} | In: {h.intake?.calories || 0}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Macro Breakdown Row */}
+                                                    <div style={{ background: '#111', padding: '5px', borderRadius: '4px', fontSize: '0.8em', display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
+                                                        <span>P: <span style={{ color: '#fff' }}>{h.intake?.protein || 0}</span></span>
+                                                        <span>C: <span style={{ color: '#fff' }}>{h.intake?.carbs || 0}</span></span>
+                                                        <span>F: <span style={{ color: '#fff' }}>{h.intake?.fat || 0}</span></span>
+                                                        <span>Fib: <span style={{ color: '#fff' }}>{h.intake?.fiber || 0}</span></span>
+                                                        <span>Sat: <span style={{ color: '#fff' }}>{h.intake?.satFat || 0}</span></span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
                     )}
 
-                    {/* Dark Overlay for Modal */}
-                    {showReport && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}></div>}
+                            {/* Dark Overlay for Modal */}
+                            {showReport && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}></div>}
 
-                    {/* MISSION DATE & WEIGHT PANEL */}
-                    <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <div className="input-label" style={{ marginBottom: '2px' }}>OFFICIAL DATE</div>
-                            <div style={{ fontFamily: 'monospace', color: 'var(--hud-blue)', letterSpacing: '1px', fontSize: '0.9em' }}>
-                                {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}
-                            </div>
-                        </div>
-
-                        {weightEditMode ? (
-                            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                                <input
-                                    type="number"
-                                    className="tactical-input"
-                                    style={{ width: '80px', textAlign: 'center' }}
-                                    value={newWeight}
-                                    onChange={e => setNewWeight(e.target.value)}
-                                />
-                                <button className="btn" onClick={handleUpdateWeight} style={{ width: 'auto', padding: '5px 10px', background: 'var(--hud-green)', color: '#000' }}>SAVE</button>
-                                <button className="btn-icon" onClick={() => setWeightEditMode(false)} style={{ color: 'var(--hud-red)', fontSize: '1.5em' }}>×</button>
-                            </div>
-                        ) : (
-                            <div style={{ textAlign: 'right' }}>
-                                <div className="input-label" style={{ marginBottom: '2px' }}>CURRENT FORM</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
-                                    <span style={{ fontSize: '1.2em', color: '#fff', fontWeight: 'bold' }}>
-                                        {user.weight} <span style={{ fontSize: '0.6em', color: '#888' }}>{user.units === 'imperial' ? 'lbs' : 'kg'}</span>
-                                    </span>
-                                    <button
-                                        className="btn"
-                                        style={{ width: 'auto', padding: '2px 8px', fontSize: '0.7em', background: '#333', border: '1px solid #555' }}
-                                        onClick={() => { setNewWeight(user.weight); setWeightEditMode(true); }}
-                                    >
-                                        UPDATE
-                                    </button>
+                            {/* MISSION DATE & WEIGHT PANEL */}
+                            <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div className="input-label" style={{ marginBottom: '2px' }}>OFFICIAL DATE</div>
+                                    <div style={{ fontFamily: 'monospace', color: 'var(--hud-blue)', letterSpacing: '1px', fontSize: '0.9em' }}>
+                                        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
 
-                    {/* PANEL 1: REMAINING BUDGET (Critical Status) */}
-                    <div className="panel" style={{ borderColor: balanceColor }}>
-                        <span className="header-text">REMAINING RATION</span>
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="value-huge" style={{ color: balanceColor }}>
-                                {remaining}
-                            </div>
-                            <div className="input-label">KCAL LEFT</div>
-                            <div style={{ marginTop: '10px', fontWeight: 'bold', color: balanceColor, border: '1px solid ' + balanceColor, padding: '5px', display: 'inline-block' }}>
-                                {remaining < 0 ? 'MISSION COMPROMISED' : 'OPERATIONAL'}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* PANEL 2: TACTICAL OPS (Inputs) */}
-                    <div className="panel">
-                        <span className="header-text">TACTICAL OPS</span>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                            <button className="btn" onClick={() => setIsLogOpen(!isLogOpen)}>LOG FOOD</button>
-
-                            {/* Smart Activity Logger */}
-                            <div className="input-group" style={{ margin: 0 }}>
-                                <label className="input-label">LOG ACTIVITY</label>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-
-                                    {/* Type Selector */}
-                                    <div style={{ display: 'flex', gap: '5px' }}>
-                                        <select className="tactical-input" style={{ width: '100%', cursor: 'pointer', background: '#222' }} value={actType} onChange={e => setActType(e.target.value)}>
-                                            <option value="steps">STEPS (Standard)</option>
-                                            <option value="walk">WALKING (Distance/Time)</option>
-                                            <option value="run">RUNNING (High Intensity)</option>
-                                            <option value="cycle">CYCLING (Moderate)</option>
-                                            <option value="lift">LIFTING / GYM</option>
-                                            <option value="sport">SPORTS (General)</option>
-                                            <option value="custom">MANUAL ENTRY</option>
-                                        </select>
+                                {weightEditMode ? (
+                                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                        <input
+                                            type="number"
+                                            className="tactical-input"
+                                            style={{ width: '80px', textAlign: 'center' }}
+                                            value={newWeight}
+                                            onChange={e => setNewWeight(e.target.value)}
+                                        />
+                                        <button className="btn" onClick={handleUpdateWeight} style={{ width: 'auto', padding: '5px 10px', background: 'var(--hud-green)', color: '#000' }}>SAVE</button>
+                                        <button className="btn-icon" onClick={() => setWeightEditMode(false)} style={{ color: 'var(--hud-red)', fontSize: '1.5em' }}>×</button>
                                     </div>
-
-                                    {/* Dynamic Inputs */}
-                                    <div style={{ display: 'flex', gap: '5px' }}>
-                                        {actType === 'steps' && (
-                                            <input type="number" className="tactical-input" placeholder="Count" value={actForm.steps} onChange={e => setActForm({ ...actForm, steps: e.target.value })} style={{ flex: 1 }} />
-                                        )}
-
-                                        {actType === 'walk' && (
-                                            <>
-                                                <input type="number" className="tactical-input" placeholder={user.units === 'imperial' ? "Miles" : "Km"} value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
-                                                <input type="number" className="tactical-input" placeholder="Hrs (Opt)"
-                                                    value={actForm.duration ? (actForm.duration / 60) : ''}
-                                                    onChange={e => {
-                                                        const val = parseFloat(e.target.value);
-                                                        setActForm({ ...actForm, duration: val ? val * 60 : '' }); // Store as mins
-                                                    }}
-                                                    style={{ flex: 1 }}
-                                                />
-                                            </>
-                                        )}
-
-                                        {(actType === 'run' || actType === 'cycle') && (
-                                            <>
-                                                <input type="number" className="tactical-input" placeholder={user.units === 'imperial' ? "Miles" : "Km"} value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
-                                                <input type="number" className="tactical-input" placeholder="Mins" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
-                                            </>
-                                        )}
-
-                                        {(actType === 'lift' || actType === 'sport') && (
-                                            <input type="number" className="tactical-input" placeholder="Duration (Minutes)" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
-                                        )}
-
-                                        {actType === 'custom' && (
-                                            <>
-                                                <input className="tactical-input" placeholder="Desc" value={actForm.name} onChange={e => setActForm({ ...actForm, name: e.target.value })} style={{ flex: 1 }} />
-                                                <input type="number" className="tactical-input" placeholder="Kcal" value={actForm.calories} onChange={e => setActForm({ ...actForm, calories: e.target.value })} style={{ width: '80px' }} />
-                                            </>
-                                        )}
-
-                                        <button className="btn" style={{ width: 'auto', padding: '0 15px' }} onClick={handleAddSmartActivity}>ADD</button>
-                                    </div>
-
-                                    {/* Preview (Optional Enhancement) */}
-                                    {actType !== 'steps' && actType !== 'custom' && (actForm.duration || actForm.distance) && (
-                                        <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'var(--hud-green)' }}>
-                                            ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0, (parseFloat(actForm.distance) || 0) * (user.units === 'imperial' ? 1.60934 : 1))} kcal
+                                ) : (
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className="input-label" style={{ marginBottom: '2px' }}>CURRENT FORM</div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
+                                            <span style={{ fontSize: '1.2em', color: '#fff', fontWeight: 'bold' }}>
+                                                {user.weight} <span style={{ fontSize: '0.6em', color: '#888' }}>{user.units === 'imperial' ? 'lbs' : 'kg'}</span>
+                                            </span>
+                                            <button
+                                                className="btn"
+                                                style={{ width: 'auto', padding: '2px 8px', fontSize: '0.7em', background: '#333', border: '1px solid #555' }}
+                                                onClick={() => { setNewWeight(user.weight); setWeightEditMode(true); }}
+                                            >
+                                                UPDATE
+                                            </button>
                                         </div>
-                                    )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* PANEL 1: REMAINING BUDGET (Critical Status) */}
+                            <div className="panel" style={{ borderColor: balanceColor }}>
+                                <span className="header-text">REMAINING RATION</span>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div className="value-huge" style={{ color: balanceColor }}>
+                                        {remaining}
+                                    </div>
+                                    <div className="input-label">KCAL LEFT</div>
+                                    <div style={{ marginTop: '10px', fontWeight: 'bold', color: balanceColor, border: '1px solid ' + balanceColor, padding: '5px', display: 'inline-block' }}>
+                                        {remaining < 0 ? 'MISSION COMPROMISED' : 'OPERATIONAL'}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Food Logger (Expandable) Moved Here */}
-                        {isLogOpen && (
-                            <div className="panel" style={{ marginTop: '15px', border: '1px solid var(--hud-blue)' }}>
-                                <span className="header-text" style={{ color: 'var(--hud-blue)' }}>NEW RATION ENTRY</span>
-                                {/* Smart Scan */}
-                                <div className="input-group" style={{ borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                                    <label className="input-label">SMART SCAN (e.g. "300g Chicken")</label>
-                                    <div style={{ display: 'flex', gap: '10px', position: 'relative' }}>
-                                        <div style={{ flex: 2 }}>
-                                            <input
-                                                className="tactical-input"
-                                                placeholder="Scan food..."
-                                                id="smartInput"
-                                                value={scanQuery}
-                                                onChange={handleSearchChange}
-                                                style={{ width: '100%' }}
-                                                autoComplete="off"
-                                            />
-                                            {/* Autocomplete Dropdown */}
-                                            {suggestions.length > 0 && (
-                                                <div style={{
-                                                    position: 'absolute',
-                                                    top: '100%',
-                                                    left: 0,
-                                                    right: 0,
-                                                    background: '#000',
-                                                    border: '1px solid var(--hud-blue)',
-                                                    zIndex: 50,
-                                                    boxShadow: '0 4px 6px rgba(0,0,0,0.5)'
-                                                }}>
-                                                    {suggestions.map(s => (
-                                                        <div
-                                                            key={s}
-                                                            style={{
-                                                                padding: '10px',
-                                                                cursor: 'pointer',
-                                                                borderBottom: '1px solid #111',
-                                                                color: '#fff',
-                                                                textTransform: 'capitalize'
+                            {/* PANEL 2: TACTICAL OPS (Inputs) */}
+                            <div className="panel">
+                                <span className="header-text">TACTICAL OPS</span>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <button className="btn" onClick={() => setIsLogOpen(!isLogOpen)}>LOG FOOD</button>
+
+                                    {/* Smart Activity Logger */}
+                                    <div className="input-group" style={{ margin: 0 }}>
+                                        <label className="input-label">LOG ACTIVITY</label>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+
+                                            {/* Type Selector */}
+                                            <div style={{ display: 'flex', gap: '5px' }}>
+                                                <select className="tactical-input" style={{ width: '100%', cursor: 'pointer', background: '#222' }} value={actType} onChange={e => setActType(e.target.value)}>
+                                                    <option value="steps">STEPS (Standard)</option>
+                                                    <option value="walk">WALKING (Distance/Time)</option>
+                                                    <option value="run">RUNNING (High Intensity)</option>
+                                                    <option value="cycle">CYCLING (Moderate)</option>
+                                                    <option value="lift">LIFTING / GYM</option>
+                                                    <option value="sport">SPORTS (General)</option>
+                                                    <option value="custom">MANUAL ENTRY</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Dynamic Inputs */}
+                                            <div style={{ display: 'flex', gap: '5px' }}>
+                                                {actType === 'steps' && (
+                                                    <input type="number" className="tactical-input" placeholder="Count" value={actForm.steps} onChange={e => setActForm({ ...actForm, steps: e.target.value })} style={{ flex: 1 }} />
+                                                )}
+
+                                                {actType === 'walk' && (
+                                                    <>
+                                                        <input type="number" className="tactical-input" placeholder={user.units === 'imperial' ? "Miles" : "Km"} value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
+                                                        <input type="number" className="tactical-input" placeholder="Hrs (Opt)"
+                                                            value={actForm.duration ? (actForm.duration / 60) : ''}
+                                                            onChange={e => {
+                                                                const val = parseFloat(e.target.value);
+                                                                setActForm({ ...actForm, duration: val ? val * 60 : '' }); // Store as mins
                                                             }}
-                                                            onClick={() => selectSuggestion(s)}
-                                                            className="suggestion-item"
-                                                        >
-                                                            {s}
-                                                        </div>
-                                                    ))}
+                                                            style={{ flex: 1 }}
+                                                        />
+                                                    </>
+                                                )}
+
+                                                {(actType === 'run' || actType === 'cycle') && (
+                                                    <>
+                                                        <input type="number" className="tactical-input" placeholder={user.units === 'imperial' ? "Miles" : "Km"} value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
+                                                        <input type="number" className="tactical-input" placeholder="Mins" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
+                                                    </>
+                                                )}
+
+                                                {(actType === 'lift' || actType === 'sport') && (
+                                                    <input type="number" className="tactical-input" placeholder="Duration (Minutes)" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
+                                                )}
+
+                                                {actType === 'custom' && (
+                                                    <>
+                                                        <input className="tactical-input" placeholder="Desc" value={actForm.name} onChange={e => setActForm({ ...actForm, name: e.target.value })} style={{ flex: 1 }} />
+                                                        <input type="number" className="tactical-input" placeholder="Kcal" value={actForm.calories} onChange={e => setActForm({ ...actForm, calories: e.target.value })} style={{ width: '80px' }} />
+                                                    </>
+                                                )}
+
+                                                <button className="btn" style={{ width: 'auto', padding: '0 15px' }} onClick={handleAddSmartActivity}>ADD</button>
+                                            </div>
+
+                                            {/* Preview (Optional Enhancement) */}
+                                            {actType !== 'steps' && actType !== 'custom' && (actForm.duration || actForm.distance) && (
+                                                <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'var(--hud-green)' }}>
+                                                    ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0, (parseFloat(actForm.distance) || 0) * (user.units === 'imperial' ? 1.60934 : 1))} kcal
                                                 </div>
                                             )}
                                         </div>
-                                        <div style={{ flex: 1 }}>
+                                    </div>
+                                </div>
+
+                                {/* Food Logger (Expandable) Moved Here */}
+                                {isLogOpen && (
+                                    <div className="panel" style={{ marginTop: '15px', border: '1px solid var(--hud-blue)' }}>
+                                        <span className="header-text" style={{ color: 'var(--hud-blue)' }}>NEW RATION ENTRY</span>
+                                        {/* Smart Scan */}
+                                        <div className="input-group" style={{ borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '1rem' }}>
+                                            <label className="input-label">SMART SCAN (e.g. "300g Chicken")</label>
+                                            <div style={{ display: 'flex', gap: '10px', position: 'relative' }}>
+                                                <div style={{ flex: 2 }}>
+                                                    <input
+                                                        className="tactical-input"
+                                                        placeholder="Scan food..."
+                                                        id="smartInput"
+                                                        value={scanQuery}
+                                                        onChange={handleSearchChange}
+                                                        style={{ width: '100%' }}
+                                                        autoComplete="off"
+                                                    />
+                                                    {/* Autocomplete Dropdown */}
+                                                    {suggestions.length > 0 && (
+                                                        <div style={{
+                                                            position: 'absolute',
+                                                            top: '100%',
+                                                            left: 0,
+                                                            right: 0,
+                                                            background: '#000',
+                                                            border: '1px solid var(--hud-blue)',
+                                                            zIndex: 50,
+                                                            boxShadow: '0 4px 6px rgba(0,0,0,0.5)'
+                                                        }}>
+                                                            {suggestions.map(s => (
+                                                                <div
+                                                                    key={s}
+                                                                    style={{
+                                                                        padding: '10px',
+                                                                        cursor: 'pointer',
+                                                                        borderBottom: '1px solid #111',
+                                                                        color: '#fff',
+                                                                        textTransform: 'capitalize'
+                                                                    }}
+                                                                    onClick={() => selectSuggestion(s)}
+                                                                    className="suggestion-item"
+                                                                >
+                                                                    {s}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <input
+                                                        type="number"
+                                                        className="tactical-input"
+                                                        placeholder="Qty"
+                                                        value={scanQty}
+                                                        onChange={e => setScanQty(e.target.value)}
+                                                        style={{ width: '100%' }}
+                                                        title="Optional manual quantity (grams or ml)"
+                                                    />
+                                                </div>
+                                                <button className="btn" onClick={async () => {
+                                                    const query = scanQuery;
+                                                    if (!query) return;
+                                                    try {
+                                                        const manualAmount = scanQty ? parseFloat(scanQty) : null;
+                                                        const items = await Nutrition.fetchNutrition(query, manualAmount);
+                                                        if (items && items.length > 0) {
+                                                            const item = items[0];
+
+                                                            // Auto-scaling Logic
+                                                            const qty = item.serving_size_g || 100;
+                                                            const ratios = {
+                                                                cals: (item.calories || 0) / qty,
+                                                                prot: (item.protein_g || item.protein || 0) / qty,
+                                                                carbs: (item.carbohydrates_total_g || item.carbs || 0) / qty,
+                                                                fat: (item.fat_total_g || item.fat || 0) / qty,
+                                                                fiber: (item.fiber || 0) / qty,
+                                                                satFat: (item.sat_fat || 0) / qty
+                                                            };
+
+                                                            setFoodForm({
+                                                                name: item.name,
+                                                                quantity: qty,
+                                                                ratios: ratios,
+                                                                cals: item.calories,
+                                                                prot: item.protein_g || item.protein,
+                                                                carbs: item.carbohydrates_total_g || item.carbs,
+                                                                fat: item.fat_total_g || item.fat,
+                                                                fiber: item.fiber || 0,
+                                                                satFat: item.sat_fat || 0,
+                                                                airfry: false,
+                                                                bonePercent: 0,
+                                                                yieldPercent: 1.0
+                                                            });
+                                                            setScanQuery(''); // Clear after success
+                                                            setScanQty('');
+                                                            setSuggestions([]);
+                                                        } else {
+                                                            alert("No intelligence found on this item.");
+                                                        }
+                                                    } catch (e) {
+                                                        alert("Scan Failed: " + e.message);
+                                                    }
+                                                }}>SCAN</button>
+                                            </div>
+                                        </div>
+
+                                        <div className="input-group">
+                                            <label className="input-label">Name</label>
+                                            <input className="tactical-input" value={foodForm.name} onChange={e => setFoodForm({ ...foodForm, name: e.target.value })} />
+                                        </div>
+
+                                        <div className="input-group">
+                                            <label className="input-label" style={{ color: 'var(--hud-green)' }}>QUANTITY (g)</label>
                                             <input
                                                 type="number"
                                                 className="tactical-input"
-                                                placeholder="Qty"
-                                                value={scanQty}
-                                                onChange={e => setScanQty(e.target.value)}
-                                                style={{ width: '100%' }}
-                                                title="Optional manual quantity (grams or ml)"
+                                                style={{ border: '1px solid var(--hud-green)' }}
+                                                value={foodForm.quantity || ''}
+                                                placeholder="Enter amount..."
+                                                onChange={e => {
+                                                    const qty = parseFloat(e.target.value) || 0;
+                                                    const newState = { ...foodForm, quantity: qty };
+
+                                                    // Scale macros if ratios exist
+                                                    if (foodForm.ratios) {
+                                                        newState.cals = Math.round(qty * foodForm.ratios.cals);
+                                                        newState.prot = Math.round(qty * foodForm.ratios.prot);
+                                                        newState.carbs = Math.round(qty * foodForm.ratios.carbs);
+                                                        newState.fat = Math.round(qty * foodForm.ratios.fat);
+                                                        newState.fiber = Math.round(qty * foodForm.ratios.fiber);
+                                                        newState.satFat = Math.round(qty * foodForm.ratios.satFat);
+                                                    }
+
+                                                    setFoodForm(newState);
+                                                }}
                                             />
                                         </div>
-                                        <button className="btn" onClick={async () => {
-                                            const query = scanQuery;
-                                            if (!query) return;
-                                            try {
-                                                const manualAmount = scanQty ? parseFloat(scanQty) : null;
-                                                const items = await Nutrition.fetchNutrition(query, manualAmount);
-                                                if (items && items.length > 0) {
-                                                    const item = items[0];
 
-                                                    // Auto-scaling Logic
-                                                    const qty = item.serving_size_g || 100;
-                                                    const ratios = {
-                                                        cals: (item.calories || 0) / qty,
-                                                        prot: (item.protein_g || item.protein || 0) / qty,
-                                                        carbs: (item.carbohydrates_total_g || item.carbs || 0) / qty,
-                                                        fat: (item.fat_total_g || item.fat || 0) / qty,
-                                                        fiber: (item.fiber || 0) / qty,
-                                                        satFat: (item.sat_fat || 0) / qty
-                                                    };
-
-                                                    setFoodForm({
-                                                        name: item.name,
-                                                        quantity: qty,
-                                                        ratios: ratios,
-                                                        cals: item.calories,
-                                                        prot: item.protein_g || item.protein,
-                                                        carbs: item.carbohydrates_total_g || item.carbs,
-                                                        fat: item.fat_total_g || item.fat,
-                                                        fiber: item.fiber || 0,
-                                                        satFat: item.sat_fat || 0,
-                                                        airfry: false,
-                                                        bonePercent: 0,
-                                                        yieldPercent: 1.0
-                                                    });
-                                                    setScanQuery(''); // Clear after success
-                                                    setScanQty('');
-                                                    setSuggestions([]);
-                                                } else {
-                                                    alert("No intelligence found on this item.");
-                                                }
-                                            } catch (e) {
-                                                alert("Scan Failed: " + e.message);
-                                            }
-                                        }}>SCAN</button>
-                                    </div>
-                                </div>
-
-                                <div className="input-group">
-                                    <label className="input-label">Name</label>
-                                    <input className="tactical-input" value={foodForm.name} onChange={e => setFoodForm({ ...foodForm, name: e.target.value })} />
-                                </div>
-
-                                <div className="input-group">
-                                    <label className="input-label" style={{ color: 'var(--hud-green)' }}>QUANTITY (g)</label>
-                                    <input
-                                        type="number"
-                                        className="tactical-input"
-                                        style={{ border: '1px solid var(--hud-green)' }}
-                                        value={foodForm.quantity || ''}
-                                        placeholder="Enter amount..."
-                                        onChange={e => {
-                                            const qty = parseFloat(e.target.value) || 0;
-                                            const newState = { ...foodForm, quantity: qty };
-
-                                            // Scale macros if ratios exist
-                                            if (foodForm.ratios) {
-                                                newState.cals = Math.round(qty * foodForm.ratios.cals);
-                                                newState.prot = Math.round(qty * foodForm.ratios.prot);
-                                                newState.carbs = Math.round(qty * foodForm.ratios.carbs);
-                                                newState.fat = Math.round(qty * foodForm.ratios.fat);
-                                                newState.fiber = Math.round(qty * foodForm.ratios.fiber);
-                                                newState.satFat = Math.round(qty * foodForm.ratios.satFat);
-                                            }
-
-                                            setFoodForm(newState);
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Compact Read-Only Macros */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px', marginTop: '10px' }}>
-                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Prot</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.prot} />
-                                    </div>
-                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Carbs</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.carbs} />
-                                    </div>
-                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Fat</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.fat} />
-                                    </div>
-                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Fiber</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.fiber} />
-                                    </div>
-                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                        <label className="input-label" style={{ fontSize: '0.7em' }}>SatFat</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.satFat} />
-                                    </div>
-                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Kcal</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#fff', padding: '5px', fontSize: '0.9em' }} value={foodForm.cals} />
-                                    </div>
-                                </div>
-                                <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-                                    <input type="checkbox" id="af" checked={foodForm.airfry} onChange={e => setFoodForm({ ...foodForm, airfry: e.target.checked })} />
-                                    <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>AIR FRYER MODE (Reduces Fat)</label>
-                                </div>
-
-                                {/* Advanced Physics */}
-                                <div className="panel" style={{ marginTop: '10px', background: 'rgba(0,0,0,0.3)' }}>
-                                    <span className="input-label">PHYSICS MODIFIERS</span>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                        <div className="input-group">
-                                            <label className="input-label">Bone % (Waste)</label>
-                                            <input type="number" className="tactical-input" placeholder="e.g. 20" value={foodForm.bonePercent} onChange={e => setFoodForm({ ...foodForm, bonePercent: e.target.value })} />
+                                        {/* Compact Read-Only Macros */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px', marginTop: '10px' }}>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.7em' }}>Prot</label>
+                                                <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.prot} />
+                                            </div>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.7em' }}>Carbs</label>
+                                                <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.carbs} />
+                                            </div>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.7em' }}>Fat</label>
+                                                <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.fat} />
+                                            </div>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.7em' }}>Fiber</label>
+                                                <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.fiber} />
+                                            </div>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.7em' }}>SatFat</label>
+                                                <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.satFat} />
+                                            </div>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.7em' }}>Kcal</label>
+                                                <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#fff', padding: '5px', fontSize: '0.9em' }} value={foodForm.cals} />
+                                            </div>
                                         </div>
-                                        <div className="input-group">
-                                            <label className="input-label">Yield Factor (0-1)</label>
-                                            <input type="number" className="tactical-input" placeholder="e.g. 1.0" value={foodForm.yieldPercent} onChange={e => setFoodForm({ ...foodForm, yieldPercent: e.target.value })} />
+                                        <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                            <input type="checkbox" id="af" checked={foodForm.airfry} onChange={e => setFoodForm({ ...foodForm, airfry: e.target.checked })} />
+                                            <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>AIR FRYER MODE (Reduces Fat)</label>
                                         </div>
+
+                                        {/* Advanced Physics */}
+                                        <div className="panel" style={{ marginTop: '10px', background: 'rgba(0,0,0,0.3)' }}>
+                                            <span className="input-label">PHYSICS MODIFIERS</span>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                                <div className="input-group">
+                                                    <label className="input-label">Bone % (Waste)</label>
+                                                    <input type="number" className="tactical-input" placeholder="e.g. 20" value={foodForm.bonePercent} onChange={e => setFoodForm({ ...foodForm, bonePercent: e.target.value })} />
+                                                </div>
+                                                <div className="input-group">
+                                                    <label className="input-label">Yield Factor (0-1)</label>
+                                                    <input type="number" className="tactical-input" placeholder="e.g. 1.0" value={foodForm.yieldPercent} onChange={e => setFoodForm({ ...foodForm, yieldPercent: e.target.value })} />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button className="btn btn-primary" onClick={handleAddFood}>CONFIRM ENTRIES</button>
+                                    </div>
+                                )}
+
+                                <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                    <span className="input-label">CURRENT STEPS: {steps}</span>
+                                </div>
+
+                                <div style={{ borderTop: '1px solid #333', marginTop: '15px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <button style={{ background: 'none', border: '1px solid var(--hud-red)', color: 'var(--hud-red)', padding: '5px 10px', fontSize: '0.8em', cursor: 'pointer' }} onClick={handleResetSystem}>RESET SYSTEM</button>
+                                    <button style={{ background: 'var(--hud-green)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowTrends(true)}>INTEL REPORT</button>
+                                    <button style={{ background: 'var(--hud-blue)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={handleCloseDay}>CLOSE DAY</button>
+                                </div>
+                            </div>
+
+                            {/* PANEL 3: MISSION STATUS (INTAKE) */}
+                            <div className="panel" style={{ textAlign: 'center', borderColor: status.color }}>
+                                <span className="header-text">MISSION INTAKE</span>
+                                <div className="value-huge" style={{ color: status.color === 'red' ? 'var(--hud-red)' : 'var(--hud-green)' }}>
+                                    {intake.calories}
+                                </div>
+                                <span className="input-label" style={{ letterSpacing: '5px' }}>KCAL CONSUMED</span>
+
+                                <div className="gauge-bar" style={{ marginTop: '15px' }}>
+                                    <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / limit) * 100)}%` }}></div>
+                                </div>
+                                <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
+                                    MISSION TARGET: {limit}
+                                </div>
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="panel">
+                                <Gauge label="PROTEIN" value={intake.protein} max={180} unit="g" colorClass="fill-blue" />
+                                <Gauge label="CARBS" value={intake.carbs} max={200} unit="g" colorClass="fill-orange" />
+                                <Gauge label="FAT" value={intake.fat} max={70} unit="g" colorClass="fill-purple" />
+                                <Gauge label="CALORIES" value={intake.calories} max={limit} unit="kcal" colorClass={status.color === 'red' ? 'fill-red' : 'fill-green'} />
+                            </div>
+
+                            {/* MISSION LOG (HISTORY) */}
+                            <div className="panel">
+                                <span className="header-text" style={{ color: 'var(--text-dim)' }}>MISSION LOG</span>
+
+                                {/* Food List */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <div className="input-label" style={{ borderBottom: '1px solid #333' }}>RATIONS</div>
+                                    {foodLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No rations logged.</div>}
+                                    {foodLog.slice().reverse().map(item => (
+                                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
+                                            <div style={{ fontSize: '0.9em' }}>
+                                                <span style={{ color: 'var(--hud-blue)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
+                                            </div>
+                                            <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('food', item.id)}>[DEL]</button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Activity List */}
+                                <div>
+                                    <div className="input-label" style={{ borderBottom: '1px solid #333' }}>ACTIVITY</div>
+                                    {activityLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No activity logged.</div>}
+                                    {activityLog.slice().reverse().map(item => (
+                                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
+                                            <div style={{ fontSize: '0.9em' }}>
+                                                {item.type === 'WORKOUT' ? (
+                                                    <>
+                                                        <span style={{ color: 'var(--hud-orange)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span style={{ color: 'var(--hud-green)' }}>Steps</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.amount} / ~{Math.round((item.amount / 1000) * 40)} kcal)</span>
+                                                    </>
+                                                )}
+
+                                            </div>
+                                            <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>[DEL]</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* FOOTER: MISSION BRIEFING (Reference Info) */}
+                            <div className="panel" style={{ opacity: 0.8 }}>
+                                <span className="header-text">SYSTEM PARAMETERS</span>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
+                                    <div>
+                                        <div className="input-label">BASE BMR</div>
+                                        <div style={{ color: '#fff' }}>{Math.round(bmr)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className="input-label">ACTIVE TDEE</div>
+                                        <div style={{ color: '#fff' }}>{Math.round(totalOutput)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
                                     </div>
                                 </div>
 
-                                <button className="btn btn-primary" onClick={handleAddFood}>CONFIRM ENTRIES</button>
-                            </div>
-                        )}
-
-                        <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                            <span className="input-label">CURRENT STEPS: {steps}</span>
-                        </div>
-
-                        <div style={{ borderTop: '1px solid #333', marginTop: '15px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                            <button style={{ background: 'none', border: '1px solid var(--hud-red)', color: 'var(--hud-red)', padding: '5px 10px', fontSize: '0.8em', cursor: 'pointer' }} onClick={handleResetSystem}>RESET SYSTEM</button>
-                            <button style={{ background: 'var(--hud-green)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowTrends(true)}>INTEL REPORT</button>
-                            <button style={{ background: 'var(--hud-blue)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={handleCloseDay}>CLOSE DAY</button>
-                        </div>
-                    </div>
-
-                    {/* PANEL 3: MISSION STATUS (INTAKE) */}
-                    <div className="panel" style={{ textAlign: 'center', borderColor: status.color }}>
-                        <span className="header-text">MISSION INTAKE</span>
-                        <div className="value-huge" style={{ color: status.color === 'red' ? 'var(--hud-red)' : 'var(--hud-green)' }}>
-                            {intake.calories}
-                        </div>
-                        <span className="input-label" style={{ letterSpacing: '5px' }}>KCAL CONSUMED</span>
-
-                        <div className="gauge-bar" style={{ marginTop: '15px' }}>
-                            <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / limit) * 100)}%` }}></div>
-                        </div>
-                        <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
-                            MISSION TARGET: {limit}
-                        </div>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="panel">
-                        <Gauge label="PROTEIN" value={intake.protein} max={180} unit="g" colorClass="fill-blue" />
-                        <Gauge label="CARBS" value={intake.carbs} max={200} unit="g" colorClass="fill-orange" />
-                        <Gauge label="FAT" value={intake.fat} max={70} unit="g" colorClass="fill-purple" />
-                        <Gauge label="CALORIES" value={intake.calories} max={limit} unit="kcal" colorClass={status.color === 'red' ? 'fill-red' : 'fill-green'} />
-                    </div>
-
-                    {/* MISSION LOG (HISTORY) */}
-                    <div className="panel">
-                        <span className="header-text" style={{ color: 'var(--text-dim)' }}>MISSION LOG</span>
-
-                        {/* Food List */}
-                        <div style={{ marginBottom: '10px' }}>
-                            <div className="input-label" style={{ borderBottom: '1px solid #333' }}>RATIONS</div>
-                            {foodLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No rations logged.</div>}
-                            {foodLog.slice().reverse().map(item => (
-                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
-                                    <div style={{ fontSize: '0.9em' }}>
-                                        <span style={{ color: 'var(--hud-blue)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
+                                <div style={{ borderTop: '1px dashed #444', margin: '10px 0', padding: '10px 0' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span className="input-label">STRATEGY</span>
+                                        <span style={{ color: user.goal === 'cut' ? 'var(--hud-green)' : (user.goal === 'bulk' ? 'var(--hud-red)' : 'var(--hud-blue)') }}>
+                                            {user.goal === 'cut' ? 'INFILTRATE (-500)' : (user.goal === 'bulk' ? 'ASSAULT (+300)' : 'RECON (MAINTAIN)')}
+                                        </span>
                                     </div>
-                                    <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('food', item.id)}>[DEL]</button>
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Activity List */}
-                        <div>
-                            <div className="input-label" style={{ borderBottom: '1px solid #333' }}>ACTIVITY</div>
-                            {activityLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No activity logged.</div>}
-                            {activityLog.slice().reverse().map(item => (
-                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
-                                    <div style={{ fontSize: '0.9em' }}>
-                                        {item.type === 'WORKOUT' ? (
-                                            <>
-                                                <span style={{ color: 'var(--hud-orange)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span style={{ color: 'var(--hud-green)' }}>Steps</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.amount} / ~{Math.round((item.amount / 1000) * 40)} kcal)</span>
-                                            </>
-                                        )}
-
-                                    </div>
-                                    <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>[DEL]</button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* FOOTER: MISSION BRIEFING (Reference Info) */}
-                    <div className="panel" style={{ opacity: 0.8 }}>
-                        <span className="header-text">SYSTEM PARAMETERS</span>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
-                            <div>
-                                <div className="input-label">BASE BMR</div>
-                                <div style={{ color: '#fff' }}>{Math.round(bmr)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <div className="input-label">ACTIVE TDEE</div>
-                                <div style={{ color: '#fff' }}>{Math.round(totalOutput)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
-                            </div>
-                        </div>
 
-                        <div style={{ borderTop: '1px dashed #444', margin: '10px 0', padding: '10px 0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span className="input-label">STRATEGY</span>
-                                <span style={{ color: user.goal === 'cut' ? 'var(--hud-green)' : (user.goal === 'bulk' ? 'var(--hud-red)' : 'var(--hud-blue)') }}>
-                                    {user.goal === 'cut' ? 'INFILTRATE (-500)' : (user.goal === 'bulk' ? 'ASSAULT (+300)' : 'RECON (MAINTAIN)')}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <Footer />
-                </div >
-            );
+                            <Footer />
+                        </div >
+                    );
         }
 
 
-        function App() {
+                    function App() {
             const [user, setUser] = useState(Storage.getUser());
 
             const handleOnboardingComplete = (newUser) => {
-                setUser(newUser);
+                        setUser(newUser);
             };
 
             const handleReset = () => {
                 if (confirm("FACTORY RESET: This will wipe all data. Confirm?")) {
-                    Storage.clearAll();
+                        Storage.clearAll();
                     setUser(null);
                 }
             };
 
-            if (!user) {
+                    if (!user) {
                 return <Onboarding onComplete={handleOnboardingComplete} />;
             }
 
-            return <Dashboard user={user} onReset={handleReset} setUser={setUser} />;
+                    return <Dashboard user={user} onReset={handleReset} setUser={setUser} />;
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+                    const root = ReactDOM.createRoot(document.getElementById('root'));
+                    root.render(<App />);
     </script>
 </body>
 
