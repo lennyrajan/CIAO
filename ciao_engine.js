@@ -56,5 +56,20 @@ window.CIAO.Engine = {
         if (intake > limit) return { status: 'OVER LIMIT', color: 'red' };
         if (limit - intake < 200) return { status: 'ON TARGET', color: 'green' };
         return { status: 'UNDER LIMIT', color: 'blue' };
+    },
+
+    /**
+     * Adjust TDEE based on Mission Goal
+     * @param {number} tdee Total Daily Energy Expenditure
+     * @param {string} goal 'maintenance' | 'cut' | 'bulk'
+     */
+    adjustToGoal: function (tdee, goal) {
+        switch (goal) {
+            case 'cut': return Math.round(tdee - 500); // Deficit
+            case 'bulk': return Math.round(tdee + 300); // Surplus
+            case 'maintenance':
+            default:
+                return tdee;
+        }
     }
 };

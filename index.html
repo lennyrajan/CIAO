@@ -111,10 +111,25 @@
                             <label className="input-label">Age</label>
                             <input type="number" className="tactical-input" value={form.age} onChange={e => setForm({ ...form, age: parseFloat(e.target.value) })} />
                         </div>
-                        <div className="input-group">
 
+                        <div className="input-group">
+                            <label className="input-label">Bio-Gender (BMR Calc)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button className={`btn ${form.gender === 'male' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, gender: 'male' })}>MALE</button>
+                                <button className={`btn ${form.gender === 'female' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, gender: 'female' })}>FEMALE</button>
+                            </div>
                         </div>
-                        <button className="btn btn-primary" onClick={handleSubmit}>Initialize System</button>
+
+                        <div className="input-group">
+                            <label className="input-label">Mission Objective</label>
+                            <div style={{ display: 'grid', gap: '5px' }}>
+                                <button className={`btn ${form.goal === 'cut' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'cut' })}>INFILTRATE [Fat Loss -500]</button>
+                                <button className={`btn ${form.goal === 'maintenance' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'maintenance' })}>RECON [Maintain]</button>
+                                <button className={`btn ${form.goal === 'bulk' ? 'btn-primary' : ''}`} style={{ textAlign: 'left' }} onClick={() => setForm({ ...form, goal: 'bulk' })}>ASSAULT [Gain +300]</button>
+                            </div>
+                        </div>
+
+                        <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSubmit}>Initialize System</button>
                     </div>
                 </div>
             );
@@ -179,7 +194,8 @@
                 fat: acc.fat + item.fat
             }), { calories: 0, protein: 0, carbs: 0, fat: 0 }), [foodLog]);
 
-            const limit = Engine.calculateDynamicTDEE(user.bmr, steps);
+            const tdee = Engine.calculateDynamicTDEE(user.bmr, steps);
+            const limit = Engine.adjustToGoal(tdee, user.goal);
 
             // Balance Calculations
             const bmr = user.bmr;
@@ -330,7 +346,7 @@
                             <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / totalOutput) * 100)}%` }}></div>
                         </div>
                         <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
-                            Limit: {totalOutput}
+                            MISSION TARGET: {limit}
                         </div>
                     </div>
 
