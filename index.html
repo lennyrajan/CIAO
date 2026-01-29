@@ -315,22 +315,32 @@
                     {/* Dark Overlay for Modal */}
                     {showReport && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}></div>}
 
-                    {/* PANEL 1: ENERGY OUTPUT */}
+                    {/* PANEL 1: MISSION BRIEFING (Calculation Transparency) */}
                     <div className="panel">
-                        <span className="header-text">ENERGY OUTPUT</span>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                        <span className="header-text">MISSION BRIEFING</span>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
                             <div>
-                                <div className="input-label">BMR BASE</div>
-                                <div style={{ fontSize: '1.2em', color: 'var(--text-dim)' }}>{Math.round(bmr * 1.2)}</div>
+                                <div className="input-label">BASE BMR</div>
+                                <div style={{ color: '#fff' }}>{Math.round(bmr)} <span style={{ fontSize: '0.8em', color: '#666' }}>(Mifflin St-Jeor)</span></div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                                <div className="input-label">ACTIVE BURN</div>
-                                <div style={{ fontSize: '1.2em', color: 'var(--hud-blue)' }}>+{activeBurn}</div>
+                                <div className="input-label">ACTIVE TDEE</div>
+                                <div style={{ color: '#fff' }}>{Math.round(tdee)} <span style={{ fontSize: '0.8em', color: '#666' }}>(Base + Steps)</span></div>
                             </div>
                         </div>
-                        <div style={{ borderTop: '1px solid #333', paddingTop: '5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span className="input-label">TOTAL TDEE</span>
-                            <span className="value-huge" style={{ fontSize: '1.8em' }}>{totalOutput}</span>
+
+                        <div style={{ borderTop: '1px dashed #444', margin: '10px 0', padding: '10px 0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span className="input-label">STRATEGY</span>
+                                <span style={{ color: user.goal === 'cut' ? 'var(--hud-green)' : (user.goal === 'bulk' ? 'var(--hud-red)' : 'var(--hud-blue)') }}>
+                                    {user.goal === 'cut' ? 'INFILTRATE (-500)' : (user.goal === 'bulk' ? 'ASSAULT (+300)' : 'RECON (MAINTAIN)')}
+                                </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '5px' }}>
+                                <span className="input-label" style={{ color: 'var(--hud-green)' }}>PRIMARY TARGET</span>
+                                <span className="value-huge" style={{ fontSize: '1.5em' }}>{limit} <span style={{ fontSize: '0.5em' }}>kcal</span></span>
+                            </div>
                         </div>
                     </div>
 
