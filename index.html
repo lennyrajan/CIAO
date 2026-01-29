@@ -728,6 +728,28 @@
             );
         }
 
+
+        function App() {
+            const [user, setUser] = useState(Storage.getUser());
+
+            const handleOnboardingComplete = (newUser) => {
+                setUser(newUser);
+            };
+
+            const handleReset = () => {
+                if (confirm("FACTORY RESET: This will wipe all data. Confirm?")) {
+                    Storage.clearAll();
+                    setUser(null);
+                }
+            };
+
+            if (!user) {
+                return <Onboarding onComplete={handleOnboardingComplete} />;
+            }
+
+            return <Dashboard user={user} onReset={handleReset} />;
+        }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
