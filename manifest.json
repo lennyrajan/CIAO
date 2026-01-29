@@ -21,18 +21,32 @@
     ],
     "screenshots": [
         {
-            "src": "screenshots/mobile.png",
+            "src": "screenshots/shot1.png",
             "sizes": "1080x1920",
             "type": "image/png",
             "form_factor": "narrow",
-            "label": "Tactical Ops Dashboard"
+            "label": "Log Food & Activity"
         },
         {
-            "src": "screenshots/desktop.png",
-            "sizes": "1920x1080",
+            "src": "screenshots/shot2.png",
+            "sizes": "1080x1920",
             "type": "image/png",
-            "form_factor": "wide",
-            "label": "Mission Log & Stats"
+            "form_factor": "narrow",
+            "label": "Tactical Onboarding"
+        },
+        {
+            "src": "screenshots/shot3.png",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Mission Dashboard"
+        },
+        {
+            "src": "screenshots/shot4.png",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Smart Activity Logger"
         }
     ]
 }
