@@ -259,3 +259,18 @@ body {
     content: '_';
     animation: blink 1s step-end infinite;
 }
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--hud-green);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 0 5px;
+    font-weight: bold;
+}
+
+.btn-icon:hover {
+    text-shadow: 0 0 5px currentColor;
+    transform: scale(1.1);
+}

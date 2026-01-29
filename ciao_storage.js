@@ -4,6 +4,8 @@ window.CIAO = window.CIAO || {};
 
 window.CIAO.Storage = {
     KEY_HISTORY: 'ciao_history_v1',
+    KEY_USER: 'ciao_user_v1',
+    KEY_LOGS: 'ciao_logs_v1',
 
     getUser: function () {
         try {
