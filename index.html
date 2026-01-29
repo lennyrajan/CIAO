@@ -351,6 +351,7 @@
 
             // Autocomplete State
             const [scanQuery, setScanQuery] = useState('');
+            const [scanQty, setScanQty] = useState(''); // Manual quantity override
             const [suggestions, setSuggestions] = useState([]);
 
             const handleSearchChange = (e) => {
@@ -649,7 +650,7 @@
                                 <div className="input-group" style={{ borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '1rem' }}>
                                     <label className="input-label">SMART SCAN (e.g. "300g Chicken")</label>
                                     <div style={{ display: 'flex', gap: '10px', position: 'relative' }}>
-                                        <div style={{ flex: 1 }}>
+                                        <div style={{ flex: 2 }}>
                                             <input
                                                 className="tactical-input"
                                                 placeholder="Scan food..."
@@ -690,11 +691,23 @@
                                                 </div>
                                             )}
                                         </div>
+                                        <div style={{ flex: 1 }}>
+                                            <input
+                                                type="number"
+                                                className="tactical-input"
+                                                placeholder="Qty"
+                                                value={scanQty}
+                                                onChange={e => setScanQty(e.target.value)}
+                                                style={{ width: '100%' }}
+                                                title="Optional manual quantity (grams or ml)"
+                                            />
+                                        </div>
                                         <button className="btn" onClick={async () => {
                                             const query = scanQuery;
                                             if (!query) return;
                                             try {
-                                                const items = await Nutrition.fetchNutrition(query);
+                                                const manualAmount = scanQty ? parseFloat(scanQty) : null;
+                                                const items = await Nutrition.fetchNutrition(query, manualAmount);
                                                 if (items && items.length > 0) {
                                                     const item = items[0];
                                                     setFoodForm({
@@ -708,6 +721,7 @@
                                                         yieldPercent: 1.0
                                                     });
                                                     setScanQuery(''); // Clear after success
+                                                    setScanQty('');
                                                     setSuggestions([]);
                                                 } else {
                                                     alert("No intelligence found on this item.");

@@ -136,18 +136,20 @@ window.CIAO.Nutrition = {
         'ice cream': { protein: 3.5, fat: 11, carbs: 24, calories: 207, unit_g: 66 }, // 1 scoop
         'chocolate': { protein: 5, fat: 30, carbs: 60, calories: 546, unit_g: 20 }, // 2 squares
         'dark chocolate': { protein: 6, fat: 35, carbs: 50, calories: 600, unit_g: 20 },
-        'soda': { protein: 0, fat: 0, carbs: 10, calories: 37 }, // per 100ml
-        'coke': { protein: 0, fat: 0, carbs: 10.6, calories: 42 },
-        'beer': { protein: 0.5, fat: 0, carbs: 3.6, calories: 43 }, // per 100ml
-        'wine': { protein: 0.1, fat: 0, carbs: 2.6, calories: 83 },
-        'vodka': { protein: 0, fat: 0, carbs: 0, calories: 231 }, // per 100ml (approx 64 per shot)
+        'soda': { protein: 0, fat: 0, carbs: 10, calories: 37, unit_g: 330 }, // Can 330ml
+        'coke': { protein: 0, fat: 0, carbs: 10.6, calories: 42, unit_g: 330 }, // Can 330ml
+        'beer': { protein: 0.5, fat: 0, carbs: 3.6, calories: 43, unit_g: 330 }, // Bottle/Can 330ml
+        'wine': { protein: 0.1, fat: 0, carbs: 2.6, calories: 83, unit_g: 150 }, // Glass
+        'vodka': { protein: 0, fat: 0, carbs: 0, calories: 231, unit_g: 30 }, // Shot
     },
 
     /**
      * Parse simple quantity from string if using offline mode
      * Supports: "300g chicken", "2 eggs", "1 banana"
+     * @param {string} query
+     * @param {number} manualAmount (Optional) Override quantity in grams/ml
      */
-    parseOfflineQuery: function (query) {
+    parseOfflineQuery: function (query, manualAmount = null) {
         const lower = query.toLowerCase();
 
         // 1. Find food match
@@ -165,30 +167,37 @@ window.CIAO.Nutrition = {
 
         if (!match) return null;
 
-        // 2. Extract Quantity
+        // 2. Determine Amount
         let amount = 0;
-        const numberMatch = lower.match(/((\d+(\.\d+)?))/); // Matches int or float
-        const rawNumber = numberMatch ? parseFloat(numberMatch[0]) : null;
 
-        // 3. Determine Unit Type (Weight vs Count)
-        const isGram = lower.includes('g') || lower.includes('gram') || lower.includes('ml');
-        const isUnit = !isGram && match.unit_g; // If no gram specified and item has a unit weight, assume count
-
-        if (rawNumber !== null) {
-            if (isUnit) {
-                // "2 eggs" -> 2 * unit_g
-                amount = rawNumber * match.unit_g;
-            } else {
-                // "300 chicken" -> assume 300g
-                amount = rawNumber;
-            }
+        if (manualAmount && manualAmount > 0) {
+            // Manual Override takes precedence
+            amount = parseFloat(manualAmount);
         } else {
-            // No number found ("egg", "chicken")
-            if (match.unit_g) amount = match.unit_g; // 1 unit
-            else amount = 100; // Default 100g
+            // Parse from string or Default
+            const numberMatch = lower.match(/((\d+(\.\d+)?))/); // Matches int or float
+            const rawNumber = numberMatch ? parseFloat(numberMatch[0]) : null;
+
+            // Determine Unit Type (Weight vs Count)
+            const isGram = lower.includes('g') || lower.includes('gram') || lower.includes('ml');
+            const isUnit = !isGram && match.unit_g; // If no gram specified and item has a unit weight, assume count
+
+            if (rawNumber !== null) {
+                if (isUnit) {
+                    // "2 eggs" -> 2 * unit_g
+                    amount = rawNumber * match.unit_g;
+                } else {
+                    // "300 chicken" -> assume 300g
+                    amount = rawNumber;
+                }
+            } else {
+                // No number found ("egg", "chicken")
+                if (match.unit_g) amount = match.unit_g; // 1 unit
+                else amount = 100; // Default 100g
+            }
         }
 
-        // 4. Calculate stats
+        // 3. Calculate stats
         const factor = amount / 100; // Database is per 100g
 
         return {
@@ -208,13 +217,26 @@ window.CIAO.Nutrition = {
     /**
      * Fetch from Netlify Function (proxies to Gemini)
      * @param {string} query Natural language query
+     * @param {number} manualAmount Optional manual quantity override
      */
-    fetchNutrition: async function (query) {
+    fetchNutrition: async function (query, manualAmount = null) {
         if (!query) return [];
 
         try {
-            console.log(`Fetching nutrition for: ${query} via Netlify Function`);
-            const url = `/.netlify/functions/get-nutrition?query=${encodeURIComponent(query)}`;
+            // If manual amount is provided, preprocess query to include it for better API understanding
+            // But API might be confused if query is "Coke" and we send "100g Coke" if user meant count.
+            // For now, let's rely on offline for overrides as API handling is complex without NLP.
+            // OR: We try offline FIRST if manualAmount is present? 
+            // Let's stick to the existing flow but pass manualAmount to offline fallback.
+
+            // Actually, for API, if user types "Coke" and manualAmount is 330, we should probably send "330ml Coke".
+            let apiQuery = query;
+            if (manualAmount) {
+                apiQuery = `${manualAmount}g ${query}`; // Simplified assumption (g/ml)
+            }
+
+            console.log(`Fetching nutrition for: ${apiQuery} via Netlify Function`);
+            const url = `/.netlify/functions/get-nutrition?query=${encodeURIComponent(apiQuery)}`;
 
             const response = await fetch(url);
 
@@ -237,7 +259,7 @@ window.CIAO.Nutrition = {
 
         } catch (error) {
             console.warn("Netlify Service failed, falling back to offline.", error);
-            const local = this.parseOfflineQuery(query);
+            const local = this.parseOfflineQuery(query, manualAmount); // Pass manual override
             if (local) return [local];
             return [];
         }
