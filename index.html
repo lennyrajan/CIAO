@@ -349,6 +349,30 @@
             const [actType, setActType] = useState('steps'); // steps, run, cycle, lift, sport, custom
             const [actForm, setActForm] = useState({ steps: '', duration: '', distance: '', name: '', calories: '' });
 
+            // Autocomplete State
+            const [scanQuery, setScanQuery] = useState('');
+            const [suggestions, setSuggestions] = useState([]);
+
+            const handleSearchChange = (e) => {
+                const val = e.target.value;
+                setScanQuery(val);
+
+                if (val.length > 0) {
+                    const lower = val.toLowerCase();
+                    const matches = Object.keys(Nutrition.OFFLINE_DB)
+                        .filter(key => key.includes(lower))
+                        .slice(0, 5); // Limit to top 5
+                    setSuggestions(matches);
+                } else {
+                    setSuggestions([]);
+                }
+            };
+
+            const selectSuggestion = (name) => {
+                setScanQuery(name);
+                setSuggestions([]);
+            };
+
             // Handlers
             const handleAddSmartActivity = () => {
                 let entry = null;
@@ -624,10 +648,50 @@
                                 {/* Smart Scan */}
                                 <div className="input-group" style={{ borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '1rem' }}>
                                     <label className="input-label">SMART SCAN (e.g. "300g Chicken")</label>
-                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                        <input className="tactical-input" placeholder="Scan food..." id="smartInput" />
+                                    <div style={{ display: 'flex', gap: '10px', position: 'relative' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <input
+                                                className="tactical-input"
+                                                placeholder="Scan food..."
+                                                id="smartInput"
+                                                value={scanQuery}
+                                                onChange={handleSearchChange}
+                                                style={{ width: '100%' }}
+                                                autoComplete="off"
+                                            />
+                                            {/* Autocomplete Dropdown */}
+                                            {suggestions.length > 0 && (
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    top: '100%',
+                                                    left: 0,
+                                                    right: 0,
+                                                    background: '#000',
+                                                    border: '1px solid var(--hud-blue)',
+                                                    zIndex: 50,
+                                                    boxShadow: '0 4px 6px rgba(0,0,0,0.5)'
+                                                }}>
+                                                    {suggestions.map(s => (
+                                                        <div
+                                                            key={s}
+                                                            style={{
+                                                                padding: '10px',
+                                                                cursor: 'pointer',
+                                                                borderBottom: '1px solid #111',
+                                                                color: '#fff',
+                                                                textTransform: 'capitalize'
+                                                            }}
+                                                            onClick={() => selectSuggestion(s)}
+                                                            className="suggestion-item"
+                                                        >
+                                                            {s}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                         <button className="btn" onClick={async () => {
-                                            const query = document.getElementById('smartInput').value;
+                                            const query = scanQuery;
                                             if (!query) return;
                                             try {
                                                 const items = await Nutrition.fetchNutrition(query);
@@ -643,6 +707,8 @@
                                                         bonePercent: 0,
                                                         yieldPercent: 1.0
                                                     });
+                                                    setScanQuery(''); // Clear after success
+                                                    setSuggestions([]);
                                                 } else {
                                                     alert("No intelligence found on this item.");
                                                 }
