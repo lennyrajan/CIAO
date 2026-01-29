@@ -72,6 +72,18 @@ window.CIAO.Storage = {
         localStorage.removeItem(this.KEY_USER);
     },
 
+    clearHistory: function () {
+        localStorage.removeItem(this.KEY_HISTORY);
+        // Also reset rank in user profile if exists
+        const user = this.getUser();
+        if (user) {
+            user.xp = 0;
+            user.rankTitle = 'RECRUIT';
+            user.rankIndex = 0;
+            this.saveUser(user);
+        }
+    },
+
     clearAll: function () {
         localStorage.removeItem(this.KEY_USER);
         localStorage.removeItem(this.KEY_LOGS);

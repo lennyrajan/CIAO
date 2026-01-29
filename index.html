@@ -641,7 +641,113 @@
 
             return (
                 <div className="container">
-                    <Header user={user} />
+                    <div style={{ position: 'relative' }}>
+                        <Header user={user} />
+                        <button
+                            style={{
+                                position: 'absolute',
+                                top: '0px',
+                                right: '0px', // Overlap header for tactical feel? No, maybe below
+                                background: 'transparent',
+                                border: '1px solid #333',
+                                color: '#555',
+                                fontSize: '0.7em',
+                                padding: '2px 5px',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => setShowSettings(true)}
+                        >
+                            [OPS]
+                        </button>
+                    </div>
+
+                    {/* SETTINGS / OPS MODAL */}
+                    {showSettings && (
+                        <div className="panel" style={{ position: 'fixed', inset: 0, zIndex: 300, background: '#000', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <span className="header-text">OPERATIONS CENTER</span>
+                                <button className="btn" style={{ width: 'auto' }} onClick={() => setShowSettings(false)}>CLOSE</button>
+                            </div>
+
+                            {/* 1. Profile Edit */}
+                            <div style={{ marginBottom: '30px', borderBottom: '1px dashed #333', paddingBottom: '20px' }}>
+                                <div className="input-label" style={{ color: 'var(--hud-blue)' }}>PILOT PROFILE</div>
+                                <div className="input-group">
+                                    <label className="input-label">CODENAME</label>
+                                    <input
+                                        type="text" className="tactical-input"
+                                        value={user.name || ''}
+                                        onChange={e => setUser({ ...user, name: e.target.value.toUpperCase() })}
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label className="input-label">STRATEGY</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px' }}>
+                                        <button className={`btn ${user.goal === 'cut' ? 'btn-primary' : ''}`} onClick={() => setUser({ ...user, goal: 'cut' })}>CUT</button>
+                                        <button className={`btn ${user.goal === 'maintenance' ? 'btn-primary' : ''}`} onClick={() => setUser({ ...user, goal: 'maintenance' })}>MAINT</button>
+                                        <button className={`btn ${user.goal === 'bulk' ? 'btn-primary' : ''}`} onClick={() => setUser({ ...user, goal: 'bulk' })}>BULK</button>
+                                    </div>
+                                </div>
+                                <button className="btn" style={{ background: 'var(--hud-green)', color: '#000' }} onClick={() => { Storage.saveUser(user); alert("PROFILE UPDATED"); setShowSettings(false); }}>SAVE PROFILE CHANGES</button>
+                            </div>
+
+                            {/* 2. Data Management */}
+                            <div>
+                                <div className="input-label" style={{ color: 'var(--hud-red)' }}>DANGER ZONE</div>
+
+                                {/* Reset Day */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', padding: '10px', border: '1px solid #333' }}>
+                                    <div style={{ fontSize: '0.8em', color: '#888' }}>
+                                        <strong>RESET DAY</strong><br />
+                                        Clears today's logs. Keeps Rank.
+                                    </div>
+                                    <button className="btn" style={{ width: 'auto', background: '#333' }} onClick={() => {
+                                        if (confirm("RESET TODAY'S MISSION?")) {
+                                            Storage.clearTodayLog();
+                                            setFoodLog([]);
+                                            setActivityLog([]);
+                                            alert("DAY RESET");
+                                        }
+                                    }}>[EXECUTE]</button>
+                                </div>
+
+                                {/* Wipe Intel */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', padding: '10px', border: '1px solid #333' }}>
+                                    <div style={{ fontSize: '0.8em', color: '#888' }}>
+                                        <strong>WIPE INTEL</strong><br />
+                                        Clears History & Rank. Keeps Profile.
+                                    </div>
+                                    <button className="btn" style={{ width: 'auto', background: '#500' }} onClick={() => {
+                                        if (confirm("WIPE ALL HISTORY AND RANK?")) {
+                                            Storage.clearHistory();
+                                            setHistory([]);
+
+                                            // Reset local user state for Rank
+                                            const resetUser = { ...user, xp: 0, rankTitle: 'RECRUIT', rankIndex: 0 };
+                                            setUser(resetUser);
+                                            Storage.saveUser(resetUser);
+
+                                            alert("INTEL PURGED. RANK RESET TO RECRUIT.");
+                                        }
+                                    }}>[EXECUTE]</button>
+                                </div>
+
+                                {/* Factory Reset */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', border: '1px solid var(--hud-red)' }}>
+                                    <div style={{ fontSize: '0.8em', color: 'var(--hud-red)' }}>
+                                        <strong>FACTORY RESET</strong><br />
+                                        Wipes EVERYTHING.
+                                    </div>
+                                    <button className="btn" style={{ width: 'auto', background: 'var(--hud-red)' }} onClick={() => {
+                                        if (confirm("FULL FACTORY RESET. CONFIRM DESTROY?")) {
+                                            Storage.clearAll();
+                                            setUser(null);
+                                        }
+                                    }}>[DESTROY]</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* PROMOTION MODAL */}
                     {showPromo && (
