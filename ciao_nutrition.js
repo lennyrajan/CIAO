@@ -12,16 +12,16 @@ window.CIAO.Nutrition = {
         'chicken thigh': { protein: 26, fat: 15, carbs: 0, calories: 245 }, // Skin on
         'turkey': { protein: 29, fat: 1, carbs: 0, calories: 135 },
         'ground turkey': { protein: 27, fat: 12, carbs: 0, calories: 220 }, // 93% lean
-        'egg': { protein: 6, fat: 5, carbs: 0.6, calories: 72, unit_g: 50 }, // Per Large Egg
-        'eggs': { protein: 6, fat: 5, carbs: 0.6, calories: 72, unit_g: 50 },
-        'egg white': { protein: 3.6, fat: 0, carbs: 0.2, calories: 17, unit_g: 33 },
+        'egg': { protein: 13, fat: 10, carbs: 1, calories: 143, unit_g: 50 }, // Standard ~143kcal/100g. Unit 50g.
+        'eggs': { protein: 13, fat: 10, carbs: 1, calories: 143, unit_g: 50 },
+        'egg white': { protein: 11, fat: 0, carbs: 0.7, calories: 52, unit_g: 33 }, // ~52kcal/100g
         'beef': { protein: 26, fat: 19, carbs: 0, calories: 250 }, // Ground 85%
         'ground beef': { protein: 26, fat: 19, carbs: 0, calories: 250 },
         'lean beef': { protein: 21, fat: 5, carbs: 0, calories: 137 }, // 95% lean
         'steak': { protein: 25, fat: 19, carbs: 0, calories: 271 },
         'ribeye': { protein: 24, fat: 22, carbs: 0, calories: 290 },
         'sirloin': { protein: 29, fat: 10, carbs: 0, calories: 210 },
-        'bacon': { protein: 3, fat: 3.5, carbs: 0, calories: 43, unit_g: 12 }, // 1 Slice
+        'bacon': { protein: 37, fat: 42, carbs: 1, calories: 541, unit_g: 12 }, // ~540kcal/100g cooked
         'pork': { protein: 27, fat: 14, carbs: 0, calories: 242 },
         'pork chop': { protein: 30, fat: 12, carbs: 0, calories: 231 },
         'lamb': { protein: 25, fat: 21, carbs: 0, calories: 294 },
@@ -34,10 +34,10 @@ window.CIAO.Nutrition = {
         'tofu': { protein: 8, fat: 4.8, carbs: 1.9, calories: 76 },
         'tempeh': { protein: 20, fat: 11, carbs: 7.7, calories: 192 },
         'seitan': { protein: 75, fat: 1.9, carbs: 14, calories: 370 },
-        'whey': { protein: 24, fat: 1.5, carbs: 3, calories: 120, unit_g: 32 }, // 1 scoop
-        'protein powder': { protein: 24, fat: 1.5, carbs: 3, calories: 120, unit_g: 32 },
-        'casein': { protein: 24, fat: 1, carbs: 3, calories: 110, unit_g: 32 },
-        'yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59, unit_g: 170 }, // Greek Non-Fat Cup
+        'whey': { protein: 75, fat: 5, carbs: 9, calories: 375, unit_g: 32 }, // ~120kcal per 32g -> ~375/100g
+        'protein powder': { protein: 75, fat: 5, carbs: 9, calories: 375, unit_g: 32 },
+        'casein': { protein: 73, fat: 3, carbs: 10, calories: 360, unit_g: 32 },
+        'yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59, unit_g: 170 }, // Greek Non-Fat Cup (already per 100g data ok)
         'greek yogurt': { protein: 10, fat: 0.4, carbs: 3.6, calories: 59, unit_g: 170 },
         'cottage cheese': { protein: 11, fat: 4.3, carbs: 3.4, calories: 98, unit_g: 113 }, // 1/2 cup
 
@@ -51,12 +51,12 @@ window.CIAO.Nutrition = {
         'couscous': { protein: 3.8, fat: 0.2, carbs: 23, calories: 112 },
         'oats': { protein: 13, fat: 6, carbs: 60, calories: 350 }, // Dry weight approx
         'oatmeal': { protein: 2.4, fat: 1.4, carbs: 12, calories: 71 }, // Cooked with water
-        'bread': { protein: 4, fat: 1, carbs: 13, calories: 80, unit_g: 30 }, // 1 Slice
-        'white bread': { protein: 2.7, fat: 1, carbs: 13, calories: 73, unit_g: 28 },
-        'whole wheat bread': { protein: 3, fat: 1, carbs: 13, calories: 80, unit_g: 32 },
-        'sourdough': { protein: 3, fat: 0.6, carbs: 16, calories: 82, unit_g: 35 },
-        'bagel': { protein: 11, fat: 2, carbs: 55, calories: 290, unit_g: 105 }, // 1 Medium
-        'tortilla': { protein: 4, fat: 3, carbs: 20, calories: 120, unit_g: 40 }, // Flour
+        'bread': { protein: 9, fat: 3, carbs: 49, calories: 265, unit_g: 30 }, // ~80kcal/30g -> 265/100g
+        'white bread': { protein: 9, fat: 3, carbs: 49, calories: 265, unit_g: 28 },
+        'whole wheat bread': { protein: 13, fat: 4, carbs: 41, calories: 250, unit_g: 32 },
+        'sourdough': { protein: 10, fat: 2, carbs: 50, calories: 270, unit_g: 35 },
+        'bagel': { protein: 10, fat: 1.5, carbs: 55, calories: 275, unit_g: 105 }, // ~290/105g -> ~275
+        'tortilla': { protein: 7, fat: 6, carbs: 50, calories: 300, unit_g: 40 }, // Flour
         'pasta': { protein: 5, fat: 1.1, carbs: 25, calories: 131 }, // Cooked
         'spaghetti': { protein: 5, fat: 1.1, carbs: 25, calories: 131 },
         'macaroni': { protein: 5, fat: 1.1, carbs: 25, calories: 131 },
