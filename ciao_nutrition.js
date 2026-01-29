@@ -76,67 +76,66 @@ window.CIAO.Nutrition = {
         'walnuts': { protein: 15, fat: 65, carbs: 14, calories: 654 },
         'cashews': { protein: 18, fat: 44, carbs: 30, calories: 553 },
         'peanuts': { protein: 26, fat: 49, carbs: 16, calories: 567 },
-        'chia seeds': { protein: 17, fat: 31, carbs: 42, calories: 486 },
-        'flax seeds': { protein: 18, fat: 42, carbs: 29, calories: 534 },
-        'mayo': { protein: 0, fat: 10, carbs: 0, calories: 90, unit_g: 14 }, // 1 tbsp
+        'avocado': { protein: 2, fat: 15, carbs: 9, calories: 160, unit_g: 150, fiber: 7, sat_fat: 2.1 }, // ~half
+        'oil': { protein: 0, fat: 100, carbs: 0, calories: 884, unit_g: 14, fiber: 0, sat_fat: 14 }, // 1 tbsp
+        'olive oil': { protein: 0, fat: 100, carbs: 0, calories: 884, unit_g: 15, fiber: 0, sat_fat: 14 },
+        'coconut oil': { protein: 0, fat: 100, carbs: 0, calories: 862, unit_g: 14, fiber: 0, sat_fat: 87 },
+        'butter': { protein: 0.9, fat: 81, carbs: 0.1, calories: 717, unit_g: 10, fiber: 0, sat_fat: 51 }, // 1 tbsp
+        'peanut butter': { protein: 25, fat: 50, carbs: 20, calories: 588, unit_g: 32, fiber: 6, sat_fat: 10 }, // 2 tbsp
+        'almonds': { protein: 21, fat: 49, carbs: 22, calories: 575, fiber: 12.2, sat_fat: 3.7 },
+        'walnuts': { protein: 15, fat: 65, carbs: 14, calories: 654, fiber: 6.7, sat_fat: 6.1 },
+        'cashews': { protein: 18, fat: 44, carbs: 30, calories: 553, fiber: 3.3, sat_fat: 7.8 },
+        'peanuts': { protein: 26, fat: 49, carbs: 16, calories: 567, fiber: 8.5, sat_fat: 6.9 },
+        'nuts': { protein: 21, fat: 49, carbs: 21, calories: 607, unit_g: 30, fiber: 7, sat_fat: 4 }, // Mixed nuts estimate
+        'chia seeds': { protein: 17, fat: 31, carbs: 42, calories: 486, fiber: 34.4, sat_fat: 3.3 },
+        'flax seeds': { protein: 18, fat: 42, carbs: 29, calories: 534, fiber: 27.3, sat_fat: 3.7 },
+        'mayo': { protein: 0, fat: 10, carbs: 0, calories: 90, unit_g: 14, fiber: 0, sat_fat: 1.6 }, // 1 tbsp
 
         // --- FRUITS ---
-        'banana': { protein: 1.3, fat: 0.4, carbs: 27, calories: 105, unit_g: 118 }, // Medium
-        'apple': { protein: 0.5, fat: 0.3, carbs: 25, calories: 95, unit_g: 182 }, // Medium
-        'orange': { protein: 0.9, fat: 0.1, carbs: 12, calories: 47, unit_g: 130 },
-        'grapes': { protein: 0.7, fat: 0.2, carbs: 18, calories: 69, unit_g: 80 }, // Cup
-        'strawberries': { protein: 0.7, fat: 0.3, carbs: 7.7, calories: 32, unit_g: 144 }, // Cup
-        'blueberries': { protein: 0.7, fat: 0.3, carbs: 14, calories: 57, unit_g: 148 }, // Cup
-        'raspberries': { protein: 1.2, fat: 0.7, carbs: 12, calories: 52, unit_g: 123 }, // Cup
-        'melon': { protein: 0.8, fat: 0.2, carbs: 8, calories: 34, unit_g: 160 }, // Wedge
-        'watermelon': { protein: 0.6, fat: 0.2, carbs: 8, calories: 30, unit_g: 280 }, // Wedge
-        'pineapple': { protein: 0.5, fat: 0.1, carbs: 13, calories: 50, unit_g: 165 }, // Cup
-        'mango': { protein: 0.8, fat: 0.4, carbs: 15, calories: 60, unit_g: 165 }, // Cup
-        'kiwi': { protein: 1.1, fat: 0.5, carbs: 15, calories: 61, unit_g: 69 },
-        'lemon': { protein: 1.1, fat: 0.3, carbs: 9, calories: 29 },
+        'banana': { protein: 1.1, fat: 0.3, carbs: 23, calories: 89, unit_g: 118, fiber: 2.6, sat_fat: 0.1 }, // Medium
+        'apple': { protein: 0.3, fat: 0.2, carbs: 14, calories: 52, unit_g: 182, fiber: 2.4, sat_fat: 0 }, // Medium
+        'orange': { protein: 0.9, fat: 0.1, carbs: 12, calories: 47, unit_g: 130, fiber: 2.4, sat_fat: 0 },
+        'grapes': { protein: 0.7, fat: 0.2, carbs: 18, calories: 69, unit_g: 80, fiber: 0.9, sat_fat: 0.1 }, // Cup
+        'strawberries': { protein: 0.7, fat: 0.3, carbs: 7.7, calories: 32, unit_g: 144, fiber: 2.0, sat_fat: 0.0 }, // Cup
+        'blueberries': { protein: 0.7, fat: 0.3, carbs: 14, calories: 57, unit_g: 148, fiber: 2.4, sat_fat: 0.0 }, // Cup
+        'raspberries': { protein: 1.2, fat: 0.7, carbs: 12, calories: 52, unit_g: 123, fiber: 6.5, sat_fat: 0.0 }, // Cup
+        'melon': { protein: 0.8, fat: 0.2, carbs: 8, calories: 34, unit_g: 160, fiber: 0.9, sat_fat: 0.1 }, // Wedge
+        'watermelon': { protein: 0.6, fat: 0.2, carbs: 8, calories: 30, unit_g: 280, fiber: 0.4, sat_fat: 0.0 }, // Wedge
+        'pineapple': { protein: 0.5, fat: 0.1, carbs: 13, calories: 50, unit_g: 165, fiber: 1.4, sat_fat: 0.0 }, // Cup
+        'mango': { protein: 0.8, fat: 0.4, carbs: 15, calories: 60, unit_g: 165, fiber: 1.6, sat_fat: 0.1 }, // Cup
+        'kiwi': { protein: 1.1, fat: 0.5, carbs: 15, calories: 61, unit_g: 69, fiber: 3.0, sat_fat: 0.0 },
+        'lemon': { protein: 1.1, fat: 0.3, carbs: 9, calories: 29, fiber: 2.8, sat_fat: 0.0 },
 
         // --- VEGETABLES ---
-        'broccoli': { protein: 2.8, fat: 0.4, carbs: 7, calories: 34 },
-        'spinach': { protein: 2.9, fat: 0.4, carbs: 3.6, calories: 23 },
-        'lettuce': { protein: 1.4, fat: 0.2, carbs: 2.9, calories: 15 },
-        'cucumber': { protein: 0.7, fat: 0.1, carbs: 3.6, calories: 15 },
-        'tomato': { protein: 0.9, fat: 0.2, carbs: 3.9, calories: 18 },
-        'onion': { protein: 1.1, fat: 0.1, carbs: 9, calories: 40 },
-        'garlic': { protein: 6.4, fat: 0.5, carbs: 33, calories: 149, unit_g: 3 }, // 1 clove
-        'carrot': { protein: 0.9, fat: 0.2, carbs: 10, calories: 41 },
-        'peppers': { protein: 1, fat: 0.3, carbs: 6, calories: 31 },
-        'asparagus': { protein: 2.2, fat: 0.1, carbs: 3.9, calories: 20 },
-        'green beans': { protein: 1.8, fat: 0.1, carbs: 7, calories: 31 },
-        'mushrooms': { protein: 3.1, fat: 0.3, carbs: 3.3, calories: 22 },
-        'zucchini': { protein: 1.2, fat: 0.3, carbs: 3.1, calories: 17 },
+        'broccoli': { protein: 2.8, fat: 0.4, carbs: 7, calories: 34, fiber: 2.6, sat_fat: 0.0 },
+        'spinach': { protein: 2.9, fat: 0.4, carbs: 3.6, calories: 23, fiber: 2.2, sat_fat: 0.0 },
+        'lettuce': { protein: 1.4, fat: 0.2, carbs: 2.9, calories: 15, fiber: 1.3, sat_fat: 0.0 },
+        'cucumber': { protein: 0.7, fat: 0.1, carbs: 3.6, calories: 15, fiber: 1.5, sat_fat: 0.0 },
+        'tomato': { protein: 0.9, fat: 0.2, carbs: 3.9, calories: 18, fiber: 1.2, sat_fat: 0.0 },
+        'onion': { protein: 1.1, fat: 0.1, carbs: 9, calories: 40, fiber: 1.7, sat_fat: 0.0 },
+        'garlic': { protein: 6.4, fat: 0.5, carbs: 33, calories: 149, unit_g: 3, fiber: 2.1, sat_fat: 0.1 }, // 1 clove
+        'carrot': { protein: 0.9, fat: 0.2, carbs: 10, calories: 41, fiber: 2.8, sat_fat: 0.0 },
+        'peppers': { protein: 1, fat: 0.3, carbs: 6, calories: 31, fiber: 1.7, sat_fat: 0.1 },
+        'asparagus': { protein: 2.2, fat: 0.1, carbs: 3.9, calories: 20, fiber: 2.1, sat_fat: 0.0 },
+        'green beans': { protein: 1.8, fat: 0.1, carbs: 7, calories: 31, fiber: 3.4, sat_fat: 0.0 },
+        'mushrooms': { protein: 3.1, fat: 0.3, carbs: 3.3, calories: 22, fiber: 1.0, sat_fat: 0.0 },
+        'zucchini': { protein: 1.2, fat: 0.3, carbs: 3.1, calories: 17, fiber: 1.1, sat_fat: 0.1 },
 
         // --- DAIRY / LIQUIDS ---
-        'milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61, unit_g: 250 }, // Cup/Glass
-        'whole milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61, unit_g: 250 },
-        'skim milk': { protein: 3.4, fat: 0.2, carbs: 4.8, calories: 35, unit_g: 250 },
-        'almond milk': { protein: 0.4, fat: 1.1, carbs: 0.6, calories: 13, unit_g: 250 }, // Unsweetened
-        'oat milk': { protein: 0.5, fat: 1.5, carbs: 6.5, calories: 42, unit_g: 250 },
-        'soy milk': { protein: 3.3, fat: 1.8, carbs: 6, calories: 54, unit_g: 250 },
-        'cream': { protein: 2.7, fat: 19, carbs: 3.7, calories: 195, unit_g: 15 }, // 1 tbsp
-        'half and half': { protein: 3, fat: 11, carbs: 4, calories: 130, unit_g: 15 },
-        'cheese': { protein: 25, fat: 33, carbs: 1.3, calories: 402, unit_g: 28 }, // Cheddar slice
-        'cheddar': { protein: 25, fat: 33, carbs: 1.3, calories: 402, unit_g: 28 },
-        'mozzarella': { protein: 22, fat: 22, carbs: 2.2, calories: 300, unit_g: 28 },
-        'parmesan': { protein: 38, fat: 29, carbs: 4, calories: 431, unit_g: 5 }, // 1 tsp
+        'milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61, unit_g: 250, fiber: 0, sat_fat: 2.3 }, // Cup/Glass
+        'whole milk': { protein: 3.4, fat: 3.6, carbs: 4.8, calories: 61, unit_g: 250, fiber: 0, sat_fat: 2.3 },
+        'skim milk': { protein: 3.4, fat: 0.2, carbs: 4.8, calories: 35, unit_g: 250, fiber: 0, sat_fat: 0.1 },
+        'almond milk': { protein: 0.4, fat: 1.1, carbs: 0.6, calories: 13, unit_g: 250, fiber: 0.5, sat_fat: 0 }, // Unsweetened
+        'oat milk': { protein: 0.5, fat: 1.5, carbs: 6.5, calories: 42, unit_g: 250, fiber: 0.5, sat_fat: 0.2 },
+        'soy milk': { protein: 3.3, fat: 1.8, carbs: 6, calories: 54, unit_g: 250, fiber: 0.6, sat_fat: 0.3 },
+        'cream': { protein: 2.7, fat: 19, carbs: 3.7, calories: 195, unit_g: 15, fiber: 0, sat_fat: 12.0 }, // 1 tbsp
+        'half and half': { protein: 3, fat: 11, carbs: 4, calories: 130, unit_g: 15, fiber: 0, sat_fat: 7.0 },
+        'cheese': { protein: 25, fat: 33, carbs: 1.3, calories: 402, unit_g: 28, fiber: 0, sat_fat: 19.0 }, // Cheddar slice
+        'cheddar': { protein: 25, fat: 33, carbs: 1.3, calories: 402, unit_g: 28, fiber: 0, sat_fat: 19.0 },
+        'mozzarella': { protein: 22, fat: 22, carbs: 2.2, calories: 300, unit_g: 28, fiber: 0, sat_fat: 13.0 },
+        'parmesan': { protein: 38, fat: 29, carbs: 4, calories: 431, unit_g: 5, fiber: 0, sat_fat: 19.0 }, // 1 tsp
 
         // --- JUNK / CONVENIENCE ---
-        'pizza': { protein: 11, fat: 10, carbs: 30, calories: 260, unit_g: 107 }, // 1 Slice Cheese
-        'slice of pizza': { protein: 11, fat: 10, carbs: 30, calories: 260, unit_g: 107 },
-        'burger': { protein: 13, fat: 14, carbs: 25, calories: 295, unit_g: 110 }, // Generic fast food plain
-        'hamburger': { protein: 13, fat: 14, carbs: 25, calories: 295, unit_g: 110 },
-        'cheeseburger': { protein: 15, fat: 16, carbs: 26, calories: 340, unit_g: 130 },
-        'fries': { protein: 3.4, fat: 15, carbs: 41, calories: 312 }, // Medium serve ~100g
-        'chips': { protein: 7, fat: 35, carbs: 53, calories: 536, unit_g: 30 }, // small bag
-        'cookie': { protein: 2, fat: 9, carbs: 25, calories: 190, unit_g: 40 }, // Medium cookie
-        'ice cream': { protein: 3.5, fat: 11, carbs: 24, calories: 207, unit_g: 66 }, // 1 scoop
-        'chocolate': { protein: 5, fat: 30, carbs: 60, calories: 546, unit_g: 20 }, // 2 squares
-        'dark chocolate': { protein: 6, fat: 35, carbs: 50, calories: 600, unit_g: 20 },
-        'soda': { protein: 0, fat: 0, carbs: 10, calories: 37, unit_g: 330 }, // Can 330ml
         'coke': { protein: 0, fat: 0, carbs: 10.6, calories: 42, unit_g: 330 }, // Can 330ml
         'diet coke': { protein: 0, fat: 0, carbs: 0, calories: 1, unit_g: 330 }, // Can 330ml
         'coke zero': { protein: 0, fat: 0, carbs: 0, calories: 1, unit_g: 330 }, // Can 330ml
@@ -208,6 +207,8 @@ window.CIAO.Nutrition = {
             protein: typeof match.protein === 'number' ? Math.round(match.protein * factor) : 0,
             fat: typeof match.fat === 'number' ? Math.round(match.fat * factor) : 0,
             carbs: typeof match.carbs === 'number' ? Math.round(match.carbs * factor) : 0,
+            fiber: typeof match.fiber === 'number' ? Math.round(match.fiber * factor) : 0,
+            sat_fat: typeof match.sat_fat === 'number' ? Math.round(match.sat_fat * factor) : 0,
             serving_size_g: amount,
             source: 'OFFLINE_DB'
         };

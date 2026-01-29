@@ -281,7 +281,7 @@
             const [history, setHistory] = useState([]);
 
             // Food Form
-            const [foodForm, setFoodForm] = useState({ name: '', cals: 0, prot: 0, carbs: 0, fat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
+            const [foodForm, setFoodForm] = useState({ name: '', cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
 
             // Load Daily Log (Migration Logic included)
             useEffect(() => {
@@ -324,8 +324,10 @@
                 calories: acc.calories + item.calories,
                 protein: acc.protein + item.protein,
                 carbs: acc.carbs + item.carbs,
-                fat: acc.fat + item.fat
-            }), { calories: 0, protein: 0, carbs: 0, fat: 0 }), [foodLog]);
+                fat: acc.fat + item.fat,
+                fiber: (acc.fiber || 0) + (item.fiber || 0),
+                satFat: (acc.satFat || 0) + (item.satFat || 0)
+            }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0 }), [foodLog]);
 
             const tdee = Engine.calculateDynamicTDEE(user.bmr, steps);
 
@@ -451,6 +453,8 @@
                     protein: parseFloat(foodForm.prot) || 0,
                     carbs: parseFloat(foodForm.carbs) || 0,
                     fat: parseFloat(foodForm.fat) || 0,
+                    fiber: parseFloat(foodForm.fiber) || 0,
+                    satFat: parseFloat(foodForm.satFat) || 0,
                     calories: parseFloat(foodForm.cals) || 0
                 };
 
@@ -469,7 +473,7 @@
 
                 setFoodLog(prev => [...prev, newEntry]);
                 setIsLogOpen(false);
-                setFoodForm({ name: '', cals: 0, prot: 0, carbs: 0, fat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
+                setFoodForm({ name: '', cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
             };
 
             const handleAddSteps = () => {
@@ -634,20 +638,43 @@
                                     </div>
 
                                     {/* Data Table */}
-                                    {history.map((h, i) => (
-                                        <div key={i} style={{ borderBottom: '1px solid #222', padding: '10px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>
-                                                <div style={{ color: 'var(--hud-blue)', fontWeight: 'bold' }}>{h.date}</div>
-                                                <div style={{ fontSize: '0.8em', color: '#888' }}>Weight: {h.weight || '?'} | Steps: {h.steps || 0}</div>
-                                            </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <div style={{ color: (h.intake?.calories || 0) > limit ? 'var(--hud-red)' : 'var(--hud-green)' }}>
-                                                    {h.intake?.calories || 0} IN
+                                    {history.map((h, i) => {
+                                        const net = (h.intake?.calories || 0) - (h.output || 0); // Need output stored, fallback 0
+                                        let statusLabel = 'MAINTENANCE';
+                                        let statusColor = '#888';
+
+                                        if (net < -100) {
+                                            statusLabel = `DEFICIT ${net}`;
+                                            statusColor = 'var(--hud-green)';
+                                        } else if (net > 100) {
+                                            statusLabel = `SURPLUS +${net}`;
+                                            statusColor = 'var(--hud-red)';
+                                        }
+
+                                        return (
+                                            <div key={i} style={{ borderBottom: '1px solid #222', padding: '10px 0', fontSize: '0.9em' }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', marginBottom: '5px' }}>
+                                                    <div>
+                                                        <div style={{ color: 'var(--hud-blue)', fontWeight: 'bold' }}>{h.date}</div>
+                                                        <div style={{ fontSize: '0.8em', color: '#888' }}>Weight: {h.weight || '?'} | Steps: {h.steps || 0}</div>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div style={{ color: statusColor, fontWeight: 'bold' }}>{statusLabel}</div>
+                                                        <div style={{ fontSize: '0.8em', color: '#666' }}>Target: {limit} | In: {h.intake?.calories || 0}</div>
+                                                    </div>
                                                 </div>
-                                                <div style={{ fontSize: '0.8em', color: '#666' }}>Target: {limit}</div>
+
+                                                {/* Macro Breakdown Row */}
+                                                <div style={{ background: '#111', padding: '5px', borderRadius: '4px', fontSize: '0.8em', display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
+                                                    <span>P: <span style={{ color: '#fff' }}>{h.intake?.protein || 0}</span></span>
+                                                    <span>C: <span style={{ color: '#fff' }}>{h.intake?.carbs || 0}</span></span>
+                                                    <span>F: <span style={{ color: '#fff' }}>{h.intake?.fat || 0}</span></span>
+                                                    <span>Fib: <span style={{ color: '#fff' }}>{h.intake?.fiber || 0}</span></span>
+                                                    <span>Sat: <span style={{ color: '#fff' }}>{h.intake?.satFat || 0}</span></span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -859,6 +886,8 @@
                                                         prot: item.protein_g || item.protein,
                                                         carbs: item.carbohydrates_total_g || item.carbs,
                                                         fat: item.fat_total_g || item.fat,
+                                                        fiber: item.fiber || 0,
+                                                        satFat: item.sat_fat || 0, // Using sat_fat key from offline db
                                                         airfry: false,
                                                         bonePercent: 0,
                                                         yieldPercent: 1.0
@@ -898,7 +927,16 @@
                                         <input type="number" className="tactical-input" value={foodForm.cals} onChange={e => setFoodForm({ ...foodForm, cals: e.target.value })} />
                                     </div>
                                 </div>
-
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div className="input-group">
+                                        <label className="input-label">Fiber (g)</label>
+                                        <input type="number" className="tactical-input" value={foodForm.fiber} onChange={e => setFoodForm({ ...foodForm, fiber: e.target.value })} />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">Sat Fat (g)</label>
+                                        <input type="number" className="tactical-input" value={foodForm.satFat} onChange={e => setFoodForm({ ...foodForm, satFat: e.target.value })} />
+                                    </div>
+                                </div>
                                 <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
                                     <input type="checkbox" id="af" checked={foodForm.airfry} onChange={e => setFoodForm({ ...foodForm, airfry: e.target.checked })} />
                                     <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>AIR FRYER MODE (Reduces Fat)</label>
