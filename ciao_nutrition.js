@@ -180,15 +180,20 @@ window.CIAO.Nutrition = {
             const rawNumber = numberMatch ? parseFloat(numberMatch[0]) : null;
 
             // Determine Unit Type (Weight vs Count)
-            const isGram = lower.includes('g') || lower.includes('gram') || lower.includes('ml');
-            const isUnit = !isGram && match.unit_g; // If no gram specified and item has a unit weight, assume count
+            // Fix: 'g' check was matching 'eggs', 'bagel' etc. Use Regex for explicit units.
+            // Matches: 100g, 100 g, 100gram, 100ml, 100 ml
+            const weightUnitRegex = /(\d+)\s*(g|gram|ml|oz|lb)/i;
+            const isGram = weightUnitRegex.test(lower);
+
+            const isUnit = !isGram && match.unit_g; // If no explicit weight unit found and DB has unit_g, assume count
 
             if (rawNumber !== null) {
                 if (isUnit) {
-                    // "2 eggs" -> 2 * unit_g
+                    // "2 eggs" -> 2 * unit_g -> 100g
                     amount = rawNumber * match.unit_g;
                 } else {
-                    // "300 chicken" -> assume 300g
+                    // "300 chicken" -> assume 300g default if just number
+                    // "500g eggs" -> 500
                     amount = rawNumber;
                 }
             } else {
