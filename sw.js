@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ciao-cache-v1';
+const CACHE_NAME = 'ciao-cache-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -7,8 +7,8 @@ const ASSETS = [
     './ciao_physics.js',
     './ciao_nutrition.js',
     './ciao_storage.js',
-    './icon-192.png',
-    './icon-512.png',
+    './AppImages/android/android-launchericon-192-192.png',
+    './AppImages/android/android-launchericon-512-512.png',
     'https://unpkg.com/react@18/umd/react.development.js',
     'https://unpkg.com/react-dom@18/umd/react-dom.development.js',
     'https://unpkg.com/@babel/standalone/babel.min.js'
