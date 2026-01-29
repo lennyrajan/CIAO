@@ -16,26 +16,38 @@ window.CIAO.Engine = {
         return (10 * weightKg) + (6.25 * heightCm) + (5 * ageYears) + s;
     },
 
-    calculateActivityBurn: function (weightKg, type, durationMinutes, intensity = 'moderate') {
+    calculateActivityBurn: function (weightKg, type, durationMinutes, distanceKm = 0) {
         // MET Values (Metabolic Equivalent of Task)
         const METS = {
             'steps': 0, // Handled separately
             'walk': 3.5,
-            'run': 8.0, // Avg 5mph
-            'cycle': 7.5, // Avg moderate
-            'lift': 4.5, // Resistance training
-            'sport': 7.0, // General competitive
+            'run': 8.0,
+            'cycle': 7.5,
+            'lift': 4.5,
+            'sport': 7.0,
             'hiit': 8.0,
             'custom': 0
         };
 
-        // Intensity Modifiers (Simple multiplier if needed, or specific overrides)
-        // For now, we use base METs. Smart logic can infer intensity from distance if provided later.
+        // Auto-Calculate Duration from Distance if Time is missing
+        // Speed Defaults (km/h)
+        const SPEEDS = {
+            'walk': 4.8, // 3 mph
+            'run': 9.0, // 5.6 mph
+            'cycle': 20.0 // 12 mph
+        };
+
+        let calculatedDuration = durationMinutes;
+
+        // If no duration but we have distance, infer it
+        if ((!calculatedDuration || calculatedDuration === 0) && distanceKm > 0 && SPEEDS[type]) {
+            calculatedDuration = (distanceKm / SPEEDS[type]) * 60; // in minutes
+        }
 
         let met = METS[type] || 3.0; // Default to light activity if unknown
 
         // Formula: Calories = MET * Weight(kg) * Duration(hours)
-        const durationHours = durationMinutes / 60;
+        const durationHours = calculatedDuration / 60;
         return Math.round(met * weightKg * durationHours);
     },
 

@@ -247,20 +247,35 @@
                     }
                 } else {
                     // Smart MET Calculation
-                    const duration = parseFloat(actForm.duration);
-                    if (duration && !isNaN(duration)) {
-                        const weight = user.weight; // Ensure user weight is available
-                        const dist = parseFloat(actForm.distance);
+                    // Time Conversion: If 'walk' and hours input used, convert to minutes
+                    let duration = parseFloat(actForm.duration) || 0;
 
-                        // Infer intensity from distance if available (e.g. speed)
-                        // For now we pass type directly to Engine
+                    // Special Handling for Walk (User asked for Optional Hours)
+                    // If UI passes 'hours' we'd need to know. 
+                    // To keep it simple, we'll auto-detect context or just store minutes in state but display hours input.
+                    // Implementation: The UI input for walk will write to actForm.duration (as minutes)
 
-                        const burn = Engine.calculateActivityBurn(weight, actType, duration);
+                    const weight = user.weight;
+                    const dist = parseFloat(actForm.distance) || 0;
 
+                    // Calculate Burn (Engine handles missing duration if distance exists)
+                    const burn = Engine.calculateActivityBurn(weight, actType, duration, dist);
+
+                    if (burn > 0) {
                         // Create a descriptive name
                         let name = actType.toUpperCase();
                         if (dist) name += ` (${dist}km)`;
-                        name += ` - ${duration}m`;
+
+                        // If duration was auto-calculated by engine (i.e. we only gave distance)
+                        // we calculate it back here for the label so it doesn't say "0m"
+                        let finalDuration = duration;
+                        if (duration === 0 && dist > 0) {
+                            // Re-infer for label (hacky duplication but safe)
+                            const SPEEDS = { 'walk': 4.8, 'run': 9.0, 'cycle': 20.0 };
+                            if (SPEEDS[actType]) finalDuration = Math.round((dist / SPEEDS[actType]) * 60);
+                        }
+
+                        name += ` - ${finalDuration}m`;
 
                         entry = { type: 'WORKOUT', name: name, calories: burn };
                     }
@@ -475,6 +490,7 @@
                                     <div style={{ display: 'flex', gap: '5px' }}>
                                         <select className="tactical-input" style={{ width: '100%', cursor: 'pointer', background: '#222' }} value={actType} onChange={e => setActType(e.target.value)}>
                                             <option value="steps">STEPS (Standard)</option>
+                                            <option value="walk">WALKING (Distance/Time)</option>
                                             <option value="run">RUNNING (High Intensity)</option>
                                             <option value="cycle">CYCLING (Moderate)</option>
                                             <option value="lift">LIFTING / GYM</option>
@@ -487,6 +503,20 @@
                                     <div style={{ display: 'flex', gap: '5px' }}>
                                         {actType === 'steps' && (
                                             <input type="number" className="tactical-input" placeholder="Count" value={actForm.steps} onChange={e => setActForm({ ...actForm, steps: e.target.value })} style={{ flex: 1 }} />
+                                        )}
+
+                                        {actType === 'walk' && (
+                                            <>
+                                                <input type="number" className="tactical-input" placeholder="Km" value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
+                                                <input type="number" className="tactical-input" placeholder="Hrs (Opt)"
+                                                    value={actForm.duration ? (actForm.duration / 60) : ''}
+                                                    onChange={e => {
+                                                        const val = parseFloat(e.target.value);
+                                                        setActForm({ ...actForm, duration: val ? val * 60 : '' }); // Store as mins
+                                                    }}
+                                                    style={{ flex: 1 }}
+                                                />
+                                            </>
                                         )}
 
                                         {(actType === 'run' || actType === 'cycle') && (
@@ -511,9 +541,9 @@
                                     </div>
 
                                     {/* Preview (Optional Enhancement) */}
-                                    {actType !== 'steps' && actType !== 'custom' && actForm.duration && (
+                                    {actType !== 'steps' && actType !== 'custom' && (actForm.duration || actForm.distance) && (
                                         <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'var(--hud-green)' }}>
-                                            ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0)} kcal
+                                            ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0, parseFloat(actForm.distance) || 0)} kcal
                                         </div>
                                     )}
                                 </div>
