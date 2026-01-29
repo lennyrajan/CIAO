@@ -463,9 +463,18 @@
                     yieldPercent: parseFloat(foodForm.yieldPercent)
                 });
 
+                // Auto-append quantity to name if it exists and isn't already there
+                let entryName = foodForm.name || 'Ration';
+                if (foodForm.quantity > 0) {
+                    const qtyStr = `(${foodForm.quantity}g)`;
+                    if (!entryName.includes(qtyStr)) {
+                        entryName += ` ${qtyStr}`;
+                    }
+                }
+
                 const newEntry = {
                     id: Date.now().toString(),
-                    name: foodForm.name || 'Ration',
+                    name: entryName,
                     ...final,
                     timestamp: Date.now()
                 };
@@ -893,8 +902,11 @@
                                                         satFat: (item.sat_fat || 0) / qty
                                                     };
 
+                                                    // Strip "(100g)" or similar from the name to keep it clean
+                                                    let cleanName = item.name.replace(/\(\d+g\)/i, '').trim();
+
                                                     setFoodForm({
-                                                        name: item.name,
+                                                        name: cleanName,
                                                         quantity: qty,
                                                         ratios: ratios,
                                                         cals: item.calories,
