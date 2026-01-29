@@ -14,7 +14,13 @@ window.CIAO.Storage = {
     },
 
     saveUser: function (userProfile) {
-        localStorage.setItem(this.KEY_USER, JSON.stringify(userProfile));
+        try {
+            if (!this.KEY_USER) throw new Error("Storage Key Undefined");
+            localStorage.setItem(this.KEY_USER, JSON.stringify(userProfile));
+        } catch (e) {
+            console.error("Save User Failed:", e);
+            alert("System Error: Failed to save pilot profile.");
+        }
     },
 
     getTodayLog: function () {

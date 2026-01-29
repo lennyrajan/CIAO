@@ -544,12 +544,20 @@
             };
 
             const handleUpdateWeight = () => {
+                console.log("Attempting to update weight...");
                 const w = parseFloat(newWeight);
                 if (w && w > 0) {
-                    const updated = { ...user, weight: w };
-                    Storage.saveUser(updated);
-                    setUser(updated);
-                    setWeightEditMode(false);
+                    try {
+                        const updated = { ...user, weight: w };
+                        Storage.saveUser(updated);
+                        setUser(updated);
+                        setWeightEditMode(false);
+                        console.log("Weight updated successfully to:", w);
+                    } catch (e) {
+                        alert("Storage Error: " + e.message);
+                    }
+                } else {
+                    alert("Invalid Weight: Please enter a valid number > 0");
                 }
             };
 
@@ -662,12 +670,12 @@
                                 <input
                                     type="number"
                                     className="tactical-input"
-                                    style={{ width: '70px', textAlign: 'center' }}
+                                    style={{ width: '80px', textAlign: 'center' }}
                                     value={newWeight}
                                     onChange={e => setNewWeight(e.target.value)}
                                 />
-                                <button className="btn-icon" onClick={handleUpdateWeight} style={{ color: 'var(--hud-green)' }}>✓</button>
-                                <button className="btn-icon" onClick={() => setWeightEditMode(false)} style={{ color: 'var(--hud-red)' }}>✕</button>
+                                <button className="btn" onClick={handleUpdateWeight} style={{ width: 'auto', padding: '5px 10px', background: 'var(--hud-green)', color: '#000' }}>SAVE</button>
+                                <button className="btn-icon" onClick={() => setWeightEditMode(false)} style={{ color: 'var(--hud-red)', fontSize: '1.5em' }}>×</button>
                             </div>
                         ) : (
                             <div style={{ textAlign: 'right' }}>
