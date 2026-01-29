@@ -563,7 +563,7 @@
 
             // Trends Data Prep
             const chartData = history.slice(0, 7).reverse(); // Last 7 entries
-            const maxTrackedCals = Math.max(...chartData.map(d => d.intake.calories), limit, 2500);
+            const maxTrackedCals = Math.max(...chartData.map(d => d.intake?.calories || 0), limit, 2500);
 
             return (
                 <div className="container">
@@ -623,8 +623,8 @@
                                             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
                                                 <div style={{
                                                     width: '100%',
-                                                    background: d.intake.calories > limit ? 'var(--hud-red)' : 'var(--hud-green)',
-                                                    height: `${(d.intake.calories / maxTrackedCals) * 100}%`,
+                                                    background: (d.intake?.calories || 0) > limit ? 'var(--hud-red)' : 'var(--hud-green)',
+                                                    height: `${((d.intake?.calories || 0) / maxTrackedCals) * 100}%`,
                                                     minHeight: '2px',
                                                     opacity: 0.8
                                                 }}></div>
@@ -638,11 +638,11 @@
                                         <div key={i} style={{ borderBottom: '1px solid #222', padding: '10px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <div>
                                                 <div style={{ color: 'var(--hud-blue)', fontWeight: 'bold' }}>{h.date}</div>
-                                                <div style={{ fontSize: '0.8em', color: '#888' }}>Weight: {h.weight} | Steps: {h.steps}</div>
+                                                <div style={{ fontSize: '0.8em', color: '#888' }}>Weight: {h.weight || '?'} | Steps: {h.steps || 0}</div>
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
-                                                <div style={{ color: h.intake.calories > limit ? 'var(--hud-red)' : 'var(--hud-green)' }}>
-                                                    {h.intake.calories} IN
+                                                <div style={{ color: (h.intake?.calories || 0) > limit ? 'var(--hud-red)' : 'var(--hud-green)' }}>
+                                                    {h.intake?.calories || 0} IN
                                                 </div>
                                                 <div style={{ fontSize: '0.8em', color: '#666' }}>Target: {limit}</div>
                                             </div>
