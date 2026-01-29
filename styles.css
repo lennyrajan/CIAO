@@ -158,3 +158,13 @@ body {
 .animate-blink {
     animation: blink 2s infinite;
 }
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 0.8em;
+    margin-top: 2rem;
+    border-top: 1px solid #222;
+}
