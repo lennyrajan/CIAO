@@ -97,6 +97,19 @@
             );
         }
 
+        // --- GAMIFICATION CONSTANTS ---
+        const RANKS = [
+            { title: 'RECRUIT', threshold: 0 },
+            { title: 'PRIVATE', threshold: 3 },
+            { title: 'CORPORAL', threshold: 7 },
+            { title: 'SERGEANT', threshold: 14 },
+            { title: 'LIEUTENANT', threshold: 30 },
+            { title: 'CAPTAIN', threshold: 60 },
+            { title: 'MAJOR', threshold: 90 },
+            { title: 'COLONEL', threshold: 180 },
+            { title: 'GENERAL', threshold: 365 }
+        ];
+
         function Onboarding({ onComplete }) {
             const [form, setForm] = useState({
                 name: '',
