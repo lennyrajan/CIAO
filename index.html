@@ -85,7 +85,18 @@
         }
 
         function Onboarding({ onComplete }) {
-            const [form, setForm] = useState({ weight: 80, height: 180, age: 30, gender: 'male' });
+            const [form, setForm] = useState({ weight: 80, height: 180, age: 30, gender: 'male', units: 'metric' });
+
+            // Helper for Imperial Inputs (Feet/Inches)
+            const [impHeight, setImpHeight] = useState({ ft: 5, in: 11 });
+
+            // Effect to sync separate Imp state if we switched back to Imperial (optional, but good for UX)
+            useEffect(() => {
+                if (form.units === 'imperial') {
+                    const totalInches = form.height / 2.54;
+                    setImpHeight({ ft: Math.floor(totalInches / 12), in: Math.round(totalInches % 12) });
+                }
+            }, [form.units]);
 
             const handleSubmit = () => {
                 const bmr = Engine.calculateBMR(form.weight, form.height, form.age, form.gender);
@@ -99,14 +110,56 @@
                     <Header />
                     <div className="panel">
                         <span className="header-text">Identify Target</span>
+
                         <div className="input-group">
-                            <label className="input-label">Weight (kg)</label>
-                            <input type="number" className="tactical-input" value={form.weight} onChange={e => setForm({ ...form, weight: parseFloat(e.target.value) })} />
+                            <label className="input-label">Unit System</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button className={`btn ${form.units === 'metric' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, units: 'metric' })}>METRIC (kg/km)</button>
+                                <button className={`btn ${form.units === 'imperial' ? 'btn-primary' : ''}`} style={{ flex: 1, width: 'auto' }} onClick={() => setForm({ ...form, units: 'imperial' })}>IMPERIAL (lbs/mi)</button>
+                            </div>
                         </div>
+
                         <div className="input-group">
-                            <label className="input-label">Height (cm)</label>
-                            <input type="number" className="tactical-input" value={form.height} onChange={e => setForm({ ...form, height: parseFloat(e.target.value) })} />
+                            <label className="input-label">Weight ({form.units === 'metric' ? 'kg' : 'lbs'})</label>
+                            <input
+                                type="number"
+                                className="tactical-input"
+                                value={form.units === 'metric' ? form.weight : Math.round(form.weight * 2.20462)}
+                                onChange={e => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    setForm({ ...form, weight: form.units === 'metric' ? val : val / 2.20462 });
+                                }}
+                            />
                         </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Height ({form.units === 'metric' ? 'cm' : 'ft / in'})</label>
+                            {form.units === 'metric' ? (
+                                <input type="number" className="tactical-input" value={form.height} onChange={e => setForm({ ...form, height: parseFloat(e.target.value) })} />
+                            ) : (
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <input
+                                        type="number" className="tactical-input" placeholder="Ft"
+                                        value={impHeight.ft}
+                                        onChange={e => {
+                                            const ft = parseFloat(e.target.value) || 0;
+                                            setImpHeight({ ...impHeight, ft });
+                                            setForm(f => ({ ...f, height: ((ft * 12) + impHeight.in) * 2.54 }));
+                                        }}
+                                    />
+                                    <input
+                                        type="number" className="tactical-input" placeholder="In"
+                                        value={impHeight.in}
+                                        onChange={e => {
+                                            const inch = parseFloat(e.target.value) || 0;
+                                            setImpHeight({ ...impHeight, in: inch });
+                                            setForm(f => ({ ...f, height: ((impHeight.ft * 12) + inch) * 2.54 }));
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
                         <div className="input-group">
                             <label className="input-label">Age</label>
                             <input type="number" className="tactical-input" value={form.age} onChange={e => setForm({ ...form, age: parseFloat(e.target.value) })} />
@@ -251,13 +304,13 @@
                     // Time Conversion: If 'walk' and hours input used, convert to minutes
                     let duration = parseFloat(actForm.duration) || 0;
 
-                    // Special Handling for Walk (User asked for Optional Hours)
-                    // If UI passes 'hours' we'd need to know. 
-                    // To keep it simple, we'll auto-detect context or just store minutes in state but display hours input.
-                    // Implementation: The UI input for walk will write to actForm.duration (as minutes)
-
                     const weight = user.weight;
-                    const dist = parseFloat(actForm.distance) || 0;
+                    let dist = parseFloat(actForm.distance) || 0;
+
+                    // UNIT CONVERSION (Input -> Metric)
+                    if (user.units === 'imperial' && dist > 0) {
+                        dist = dist * 1.60934; // Miles to Km
+                    }
 
                     // Calculate Burn (Engine handles missing duration if distance exists)
                     const burn = Engine.calculateActivityBurn(weight, actType, duration, dist);
@@ -265,7 +318,11 @@
                     if (burn > 0) {
                         // Create a descriptive name
                         let name = actType.toUpperCase();
-                        if (dist) name += ` (${dist}km)`;
+                        if (dist) {
+                            // Display value in chosen unit
+                            const displayDist = user.units === 'imperial' ? (dist / 1.60934).toFixed(1) + 'mi' : dist.toFixed(1) + 'km';
+                            name += ` (${displayDist})`;
+                        }
 
                         // If duration was auto-calculated by engine (i.e. we only gave distance)
                         // we calculate it back here for the label so it doesn't say "0m"
@@ -508,7 +565,7 @@
 
                                         {actType === 'walk' && (
                                             <>
-                                                <input type="number" className="tactical-input" placeholder="Km" value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
+                                                <input type="number" className="tactical-input" placeholder={user.units === 'imperial' ? "Miles" : "Km"} value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
                                                 <input type="number" className="tactical-input" placeholder="Hrs (Opt)"
                                                     value={actForm.duration ? (actForm.duration / 60) : ''}
                                                     onChange={e => {
@@ -522,7 +579,7 @@
 
                                         {(actType === 'run' || actType === 'cycle') && (
                                             <>
-                                                <input type="number" className="tactical-input" placeholder="Km" value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
+                                                <input type="number" className="tactical-input" placeholder={user.units === 'imperial' ? "Miles" : "Km"} value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
                                                 <input type="number" className="tactical-input" placeholder="Mins" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
                                             </>
                                         )}
@@ -544,7 +601,7 @@
                                     {/* Preview (Optional Enhancement) */}
                                     {actType !== 'steps' && actType !== 'custom' && (actForm.duration || actForm.distance) && (
                                         <div style={{ textAlign: 'right', fontSize: '0.8em', color: 'var(--hud-green)' }}>
-                                            ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0, parseFloat(actForm.distance) || 0)} kcal
+                                            ESTIMATED BURN: ~{Engine.calculateActivityBurn(user.weight, actType, parseFloat(actForm.duration) || 0, (parseFloat(actForm.distance) || 0) * (user.units === 'imperial' ? 1.60934 : 1))} kcal
                                         </div>
                                     )}
                                 </div>
