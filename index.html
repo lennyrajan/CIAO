@@ -299,7 +299,7 @@
                     }
 
                     // Calculate Burn (Engine handles missing duration if distance exists)
-                    const burn = Engine.calculateActivityBurn(weight, actType, duration, dist);
+                    const burn = Engine.calculateActivityBurn(user.weight, actType, duration, dist);
 
                     if (burn > 0) {
                         // Create a descriptive name
@@ -537,8 +537,91 @@
                                     )}
                                 </div>
                             </div>
-
                         </div>
+
+                        {/* Food Logger (Expandable) */}
+                        {isLogOpen && (
+                            <div className="panel" style={{ marginTop: '15px', border: '1px solid var(--hud-blue)' }}>
+                                <span className="header-text" style={{ color: 'var(--hud-blue)' }}>NEW RATION ENTRY</span>
+                                {/* Smart Scan */}
+                                <div className="input-group" style={{ borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '1rem' }}>
+                                    <label className="input-label">SMART SCAN (e.g. "300g Chicken")</label>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <input className="tactical-input" placeholder="Scan food..." id="smartInput" />
+                                        <button className="btn" onClick={async () => {
+                                            const query = document.getElementById('smartInput').value;
+                                            if (!query) return;
+                                            try {
+                                                const items = await Nutrition.fetchNutrition(query);
+                                                if (items && items.length > 0) {
+                                                    const item = items[0];
+                                                    setFoodForm({
+                                                        name: item.name,
+                                                        cals: item.calories,
+                                                        prot: item.protein_g || item.protein,
+                                                        carbs: item.carbohydrates_total_g || item.carbs,
+                                                        fat: item.fat_total_g || item.fat,
+                                                        airfry: false,
+                                                        bonePercent: 0,
+                                                        yieldPercent: 1.0
+                                                    });
+                                                } else {
+                                                    alert("No intelligence found on this item.");
+                                                }
+                                            } catch (e) {
+                                                alert("Scan Failed: " + e.message);
+                                            }
+                                        }}>SCAN</button>
+                                    </div>
+                                </div>
+
+                                <div className="input-group">
+                                    <label className="input-label">Name</label>
+                                    <input className="tactical-input" value={foodForm.name} onChange={e => setFoodForm({ ...foodForm, name: e.target.value })} />
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div className="input-group">
+                                        <label className="input-label">Prot (g)</label>
+                                        <input type="number" className="tactical-input" value={foodForm.prot} onChange={e => setFoodForm({ ...foodForm, prot: e.target.value })} />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">Carbs (g)</label>
+                                        <input type="number" className="tactical-input" value={foodForm.carbs} onChange={e => setFoodForm({ ...foodForm, carbs: e.target.value })} />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">Fat (g)</label>
+                                        <input type="number" className="tactical-input" value={foodForm.fat} onChange={e => setFoodForm({ ...foodForm, fat: e.target.value })} />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">Cals (kcal)</label>
+                                        <input type="number" className="tactical-input" value={foodForm.cals} onChange={e => setFoodForm({ ...foodForm, cals: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                    <input type="checkbox" id="af" checked={foodForm.airfry} onChange={e => setFoodForm({ ...foodForm, airfry: e.target.checked })} />
+                                    <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>AIR FRYER MODE (Reduces Fat)</label>
+                                </div>
+
+                                {/* Advanced Physics */}
+                                <div className="panel" style={{ marginTop: '10px', background: 'rgba(0,0,0,0.3)' }}>
+                                    <span className="input-label">PHYSICS MODIFIERS</span>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                        <div className="input-group">
+                                            <label className="input-label">Bone % (Waste)</label>
+                                            <input type="number" className="tactical-input" placeholder="e.g. 20" value={foodForm.bonePercent} onChange={e => setFoodForm({ ...foodForm, bonePercent: e.target.value })} />
+                                        </div>
+                                        <div className="input-group">
+                                            <label className="input-label">Yield Factor (0-1)</label>
+                                            <input type="number" className="tactical-input" placeholder="e.g. 1.0" value={foodForm.yieldPercent} onChange={e => setFoodForm({ ...foodForm, yieldPercent: e.target.value })} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button className="btn btn-primary" onClick={handleAddFood}>CONFIRM ENTRIES</button>
+                            </div>
+                        )}
+
                         <div style={{ marginTop: '10px', textAlign: 'center' }}>
                             <span className="input-label">CURRENT STEPS: {steps}</span>
                         </div>
@@ -640,118 +723,9 @@
                         </div>
                     </div>
 
-                    {/* Food Logger Modal - Simple toggle for now */}
-                    {isLogOpen && (
-                        <div className="panel" style={{ border: '1px solid var(--hud-blue)' }}>
-                            <span className="header-text" style={{ color: 'var(--hud-blue)' }}>NEW RATION ENTRY</span>
-
-                            {/* Smart Scan */}
-                            <div className="input-group" style={{ borderBottom: '1px solid #333', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                                <label className="input-label">SMART SCAN (e.g. "300g Chicken")</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <input className="tactical-input" placeholder="Scan food..." id="smartInput" />
-                                    <button className="btn" onClick={async () => {
-                                        const query = document.getElementById('smartInput').value;
-                                        if (!query) return;
-                                        try {
-                                            const items = await Nutrition.fetchNutrition(query);
-                                            if (items && items.length > 0) {
-                                                const item = items[0];
-                                                setFoodForm({
-                                                    name: item.name,
-                                                    cals: item.calories,
-                                                    prot: item.protein_g || item.protein, // API vs Local
-                                                    carbs: item.carbohydrates_total_g || item.carbs,
-                                                    fat: item.fat_total_g || item.fat,
-                                                    airfry: false,
-                                                    bonePercent: 0,
-                                                    yieldPercent: 1.0
-                                                });
-                                            } else {
-                                                alert("No intelligence found on this item.");
-                                            }
-                                        } catch (e) {
-                                            alert("Scan Failed: " + e.message);
-                                        }
-                                    }}>SCAN</button>
-                                </div>
-                            </div>
-
-                            <div className="input-group">
-                                <label className="input-label">Name</label>
-                                <input className="tactical-input" value={foodForm.name} onChange={e => setFoodForm({ ...foodForm, name: e.target.value })} />
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                <div className="input-group">
-                                    <label className="input-label">Prot (g)</label>
-                                    <input type="number" className="tactical-input" value={foodForm.prot} onChange={e => setFoodForm({ ...foodForm, prot: e.target.value })} />
-                                </div>
-                                <div className="input-group">
-                                    <label className="input-label">Carbs (g)</label>
-                                    <input type="number" className="tactical-input" value={foodForm.carbs} onChange={e => setFoodForm({ ...foodForm, carbs: e.target.value })} />
-                                </div>
-                                <div className="input-group">
-                                    <label className="input-label">Fat (g)</label>
-                                    <input type="number" className="tactical-input" value={foodForm.fat} onChange={e => setFoodForm({ ...foodForm, fat: e.target.value })} />
-                                </div>
-                                <div className="input-group">
-                                    <label className="input-label">Cals (kcal)</label>
-                                    <input type="number" className="tactical-input" value={foodForm.cals} onChange={e => setFoodForm({ ...foodForm, cals: e.target.value })} />
-                                </div>
-                            </div>
-
-                            <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-                                <input type="checkbox" id="af" checked={foodForm.airfry} onChange={e => setFoodForm({ ...foodForm, airfry: e.target.checked })} />
-                                <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>AIR FRYER MODE (Reduces Fat)</label>
-                            </div>
-
-                            {/* Advanced Physics */}
-                            <div className="panel" style={{ marginTop: '10px', background: 'rgba(0,0,0,0.3)' }}>
-                                <span className="input-label">PHYSICS MODIFIERS</span>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                    <div className="input-group">
-                                        <label className="input-label">Bone % (Waste)</label>
-                                        <input type="number" className="tactical-input" placeholder="e.g. 20" value={foodForm.bonePercent} onChange={e => setFoodForm({ ...foodForm, bonePercent: e.target.value })} />
-                                    </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Yield Factor (0-1)</label>
-                                        <input type="number" className="tactical-input" placeholder="e.g. 1.0" value={foodForm.yieldPercent} onChange={e => setFoodForm({ ...foodForm, yieldPercent: e.target.value })} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button className="btn btn-primary" onClick={handleAddFood}>CONFIRM ENTRIES</button>
-                        </div>
-                    )}
-
                     <Footer />
                 </div>
             );
-        }
-
-        function App() {
-            const [user, setUser] = useState(Storage.getUser());
-
-            const handleReset = () => {
-                if (confirm("CRITICAL WARNING: This will FACTORY RESET the app. All data and logs will be lost. Proceed?")) {
-                    // Explicitly remove known keys first
-                    localStorage.removeItem('ciao_user_v1');
-                    localStorage.removeItem('ciao_logs_v1');
-                    localStorage.clear(); // Then nuke everything else
-
-                    setUser(null);
-                    // Force hard reload via location assignment to bust any state
-                    setTimeout(() => {
-                        window.location.href = window.location.href;
-                    }, 50);
-                }
-            };
-
-            if (!user) {
-                return <Onboarding onComplete={setUser} />;
-            }
-
-            return <Dashboard user={user} onReset={handleReset} />;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
