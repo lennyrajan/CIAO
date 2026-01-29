@@ -425,7 +425,7 @@
                             {activityLog.slice().reverse().map(item => (
                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
                                     <div style={{ fontSize: '0.9em' }}>
-                                        <span style={{ color: 'var(--hud-green)' }}>Steps</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.amount})</span>
+                                        <span style={{ color: 'var(--hud-green)' }}>Steps</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.amount} / ~{Math.round((item.amount / 1000) * 40)} kcal)</span>
                                     </div>
                                     <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>[DEL]</button>
                                 </div>
