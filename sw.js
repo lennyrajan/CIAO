@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ciao-cache-v18';
+const CACHE_NAME = 'ciao-cache-v19';
 const ASSETS = [
     './',
     './index.html',
@@ -16,6 +16,7 @@ const ASSETS = [
 
 // Install Event: Cache Core Assets
 self.addEventListener('install', (e) => {
+    self.skipWaiting(); // Force waiting service worker to become active
     e.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS);
@@ -41,6 +42,6 @@ self.addEventListener('activate', (e) => {
                     return caches.delete(key);
                 }
             }));
-        })
+        }).then(() => self.clients.claim()) // Become available to all pages
     );
 });
