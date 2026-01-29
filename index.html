@@ -46,12 +46,38 @@
 
         /* --- UI COMPONENTS --- */
 
-        function Header() {
+        function Header({ user }) {
+            const getRankParam = () => {
+                if (!user || typeof RANKS === 'undefined') return null;
+                const xp = user.xp || 0;
+                const next = RANKS.find(r => r.threshold > xp);
+                if (!next) return { label: 'MAX RANK', pct: 100 };
+
+                return { label: `RANK UP: ${next.threshold - xp} DAYS`, pct: 0 };
+            };
+
+            const rankData = getRankParam();
+
             return (
                 <div className="site-header">
-                    <div className="title-main">CIAO</div>
-                    <div className="title-sub">TACTICAL RECON</div>
-                    <div className="site-desc">CALORIC INTAKE ASSESSMENT & OPERATIONS // BODY METRICS DASHBOARD</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', minHeight: '40px' }}>
+                        <div>
+                            <div className="title-main">CIAO</div>
+                            <div className="title-sub">TACTICAL RECON</div>
+                            {!user && <div className="site-desc">BODY METRICS DASHBOARD</div>}
+                        </div>
+
+                        {user && (
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ color: 'var(--hud-green)', fontWeight: 'bold', fontSize: '1.2em', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 0 10px rgba(0,255,65,0.4)' }}>
+                                    {user.rankTitle || 'RECRUIT'} {user.name || 'OPERATIVE'}
+                                </div>
+                                <div style={{ fontSize: '0.75em', color: '#888', marginTop: '2px' }}>
+                                    DAY {user.xp || 0} <span style={{ color: '#444', margin: '0 4px' }}>//</span> {rankData ? rankData.label : ''}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         }
@@ -615,7 +641,7 @@
 
             return (
                 <div className="container">
-                    <Header />
+                    <Header user={user} />
 
                     {/* PROMOTION MODAL */}
                     {showPromo && (
