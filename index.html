@@ -680,6 +680,34 @@
                                         onChange={e => setUser({ ...user, name: e.target.value.toUpperCase() })}
                                     />
                                 </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div className="input-group">
+                                        <label className="input-label">WEIGHT ({user.units === 'imperial' ? 'lb' : 'kg'})</label>
+                                        <input
+                                            type="number" className="tactical-input"
+                                            value={user.units === 'imperial' ? Math.round(user.weight * 2.20462) : user.weight}
+                                            onChange={e => {
+                                                const val = parseFloat(e.target.value) || 0;
+                                                // Always store as KG
+                                                const kg = user.units === 'imperial' ? val / 2.20462 : val;
+                                                setUser({ ...user, weight: parseFloat(kg.toFixed(1)) });
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">HEIGHT ({user.units === 'imperial' ? 'in' : 'cm'})</label>
+                                        <input
+                                            type="number" className="tactical-input"
+                                            value={user.units === 'imperial' ? Math.round(user.height / 2.54) : user.height}
+                                            onChange={e => {
+                                                const val = parseFloat(e.target.value) || 0;
+                                                // Always store as CM
+                                                const cm = user.units === 'imperial' ? val * 2.54 : val;
+                                                setUser({ ...user, height: Math.round(cm) });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
                                 <div className="input-group">
                                     <label className="input-label">STRATEGY</label>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px' }}>
@@ -688,7 +716,15 @@
                                         <button className={`btn ${user.goal === 'bulk' ? 'btn-primary' : ''}`} onClick={() => setUser({ ...user, goal: 'bulk' })}>BULK</button>
                                     </div>
                                 </div>
-                                <button className="btn" style={{ background: 'var(--hud-green)', color: '#000' }} onClick={() => { Storage.saveUser(user); alert("PROFILE UPDATED"); setShowSettings(false); }}>SAVE PROFILE CHANGES</button>
+                                <button className="btn" style={{ background: 'var(--hud-green)', color: '#000' }} onClick={() => {
+                                    // Recalculate BMR on save
+                                    const newBMR = Engine.calculateBMR(user.weight, user.height, user.age, user.gender); // Recalc BMR
+                                    const updated = { ...user, bmr: newBMR };
+                                    Storage.saveUser(updated);
+                                    setUser(updated); // Ensure state reflects BMR
+                                    alert("PROFILE UPDATED");
+                                    setShowSettings(false);
+                                }}>SAVE PROFILE CHANGES</button>
                             </div>
 
                             {/* 2. Data Management */}
@@ -1210,7 +1246,13 @@
                         </div>
 
                         <div style={{ borderTop: '1px solid #333', marginTop: '15px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                            <button style={{ background: 'none', border: '1px solid var(--hud-red)', color: 'var(--hud-red)', padding: '5px 10px', fontSize: '0.8em', cursor: 'pointer' }} onClick={handleResetSystem}>RESET SYSTEM</button>
+                            <button style={{ background: 'none', border: '1px solid #555', color: '#888', padding: '5px 10px', fontSize: '0.8em', cursor: 'pointer' }} onClick={() => {
+                                if (confirm("RESET CURRENT DAY LOGS? (History preserved)")) {
+                                    Storage.clearTodayLog();
+                                    setFoodLog([]);
+                                    setActivityLog([]);
+                                }
+                            }}>RESET DAY</button>
                             <button style={{ background: 'var(--hud-green)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowTrends(true)}>INTEL REPORT</button>
                             <button style={{ background: 'var(--hud-blue)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={handleCloseDay}>CLOSE DAY</button>
                         </div>
