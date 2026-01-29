@@ -521,8 +521,8 @@
 
                                         {(actType === 'run' || actType === 'cycle') && (
                                             <>
+                                                <input type="number" className="tactical-input" placeholder="Km" value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
                                                 <input type="number" className="tactical-input" placeholder="Mins" value={actForm.duration} onChange={e => setActForm({ ...actForm, duration: e.target.value })} style={{ flex: 1 }} />
-                                                <input type="number" className="tactical-input" placeholder="Km (Opt)" value={actForm.distance} onChange={e => setActForm({ ...actForm, distance: e.target.value })} style={{ flex: 1 }} />
                                             </>
                                         )}
 
