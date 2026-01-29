@@ -951,32 +951,31 @@
                                     />
                                 </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                    <div className="input-group">
-                                        <label className="input-label">Prot (g)</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.prot} />
+                                {/* Compact Read-Only Macros */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px', marginTop: '10px' }}>
+                                    <div className="input-group" style={{ marginBottom: 0 }}>
+                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Prot</label>
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.prot} />
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Carbs (g)</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.carbs} />
+                                    <div className="input-group" style={{ marginBottom: 0 }}>
+                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Carbs</label>
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.carbs} />
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Fat (g)</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.fat} />
+                                    <div className="input-group" style={{ marginBottom: 0 }}>
+                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Fat</label>
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.fat} />
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Cals (kcal)</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#fff' }} value={foodForm.cals} />
+                                    <div className="input-group" style={{ marginBottom: 0 }}>
+                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Fiber</label>
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.fiber} />
                                     </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                    <div className="input-group">
-                                        <label className="input-label">Fiber (g)</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.fiber} />
+                                    <div className="input-group" style={{ marginBottom: 0 }}>
+                                        <label className="input-label" style={{ fontSize: '0.7em' }}>SatFat</label>
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888', padding: '5px', fontSize: '0.9em' }} value={foodForm.satFat} />
                                     </div>
-                                    <div className="input-group">
-                                        <label className="input-label">Sat Fat (g)</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#888' }} value={foodForm.satFat} />
+                                    <div className="input-group" style={{ marginBottom: 0 }}>
+                                        <label className="input-label" style={{ fontSize: '0.7em' }}>Kcal</label>
+                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#fff', padding: '5px', fontSize: '0.9em' }} value={foodForm.cals} />
                                     </div>
                                 </div>
                                 <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
