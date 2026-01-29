@@ -202,18 +202,15 @@
             const activeBurn = Math.round((steps / 1000) * 40);
             const totalOutput = Math.round(bmr * 1.2 + activeBurn);
 
-            const netBalance = intake.calories - totalOutput;
-            let status = Engine.getMissionStatus(intake.calories, totalOutput); // Recalculate status
-            let balanceStatus = 'MAINTENANCE';
-            let balanceColor = 'var(--hud-blue)';
+            // "Remaining" Logic (Target - Intake)
+            const remaining = limit - intake.calories;
 
-            if (netBalance < -100) {
-                balanceStatus = 'DEFICIT (CUT)';
-                balanceColor = 'var(--hud-green)';
-            } else if (netBalance > 100) {
-                balanceStatus = 'SURPLUS (BULK)';
-                balanceColor = 'var(--hud-red)';
-            }
+            let status = Engine.getMissionStatus(intake.calories, limit);
+
+            // Re-using balance status logic for Remaining color coding
+            let balanceColor = 'var(--hud-blue)';
+            if (remaining < 0) balanceColor = 'var(--hud-red)';
+            else if (remaining < 200) balanceColor = 'var(--hud-green)';
 
             // Handlers
             const handleAddFood = () => {
@@ -296,12 +293,9 @@
                             </div>
 
                             <div style={{ textAlign: 'center', borderTop: '1px solid #333', paddingTop: '10px' }}>
-                                <div className="input-label">NET BALANCE</div>
-                                <div className="value-huge" style={{ color: netBalance > 0 ? 'var(--hud-red)' : 'var(--hud-green)' }}>
-                                    {netBalance > 0 ? '+' : ''}{netBalance}
-                                </div>
-                                <div style={{ color: '#888', marginBottom: '20px' }}>
-                                    {netBalance < 0 ? 'DEFICIT (Fat Loss Range)' : (Math.abs(netBalance) < 100 ? 'MAINTENANCE' : 'SURPLUS (Gaining)')}
+                                <div className="input-label">REMAINING ALLOWANCE</div>
+                                <div className="value-huge" style={{ color: remaining < 0 ? 'var(--hud-red)' : 'var(--hud-blue)' }}>
+                                    {remaining}
                                 </div>
                             </div>
 
@@ -326,7 +320,7 @@
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div className="input-label">ACTIVE TDEE</div>
-                                <div style={{ color: '#fff' }}>{Math.round(tdee)} <span style={{ fontSize: '0.8em', color: '#666' }}>(Base + Steps)</span></div>
+                                <div style={{ color: '#fff' }}>{Math.round(tdee)} <span style={{ fontSize: '0.8em', color: '#666' }}>(BMR + NEAT + Activity)</span></div>
                             </div>
                         </div>
 
@@ -353,23 +347,23 @@
                         <span className="input-label" style={{ letterSpacing: '5px' }}>KCAL CONSUMED</span>
 
                         <div className="gauge-bar" style={{ marginTop: '15px' }}>
-                            <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / totalOutput) * 100)}%` }}></div>
+                            <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / limit) * 100)}%` }}></div>
                         </div>
                         <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
                             MISSION TARGET: {limit}
                         </div>
                     </div>
 
-                    {/* PANEL 3: NET BALANCE */}
+                    {/* PANEL 3: REMAINING BUDGET */}
                     <div className="panel" style={{ borderColor: balanceColor }}>
-                        <span className="header-text">NET BALANCE</span>
+                        <span className="header-text">REMAINING RATION</span>
                         <div style={{ textAlign: 'center' }}>
                             <div className="value-huge" style={{ color: balanceColor }}>
-                                {netBalance > 0 ? '+' : ''}{netBalance}
+                                {remaining}
                             </div>
-                            <div className="input-label">KCAL</div>
+                            <div className="input-label">KCAL LEFT</div>
                             <div style={{ marginTop: '10px', fontWeight: 'bold', color: balanceColor, border: '1px solid ' + balanceColor, padding: '5px', display: 'inline-block' }}>
-                                {balanceStatus}
+                                {remaining < 0 ? 'MISSION COMPROMISED' : 'OPERATIONAL'}
                             </div>
                         </div>
                     </div>
