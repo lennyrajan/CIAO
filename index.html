@@ -185,7 +185,7 @@
             }, [activityLog, foodLog]);
 
             // Calculations (Aggregating arrays)
-            const steps = useMemo(() => activityLog.reduce((sum, item) => sum + item.amount, 0), [activityLog]);
+            const steps = useMemo(() => activityLog.reduce((sum, item) => sum + (item.type === 'WORKOUT' ? 0 : item.amount), 0), [activityLog]);
 
             const intake = useMemo(() => foodLog.reduce((acc, item) => ({
                 calories: acc.calories + item.calories,
@@ -195,12 +195,27 @@
             }), { calories: 0, protein: 0, carbs: 0, fat: 0 }), [foodLog]);
 
             const tdee = Engine.calculateDynamicTDEE(user.bmr, steps);
-            const limit = Engine.adjustToGoal(tdee, user.goal);
+
+            // Calculate Workout Burn
+            const workoutBurn = useMemo(() => activityLog.reduce((sum, item) => sum + (item.type === 'WORKOUT' ? item.calories : 0), 0), [activityLog]);
+
+            // Limit Adjust (Base TDEE + Workouts)
+            // Note: calculateDynamicTDEE includes step burn. We assume workouts are ADDITIVE to this.
+            // If calculateDynamicTDEE output is BMR + Steps, then we need to add WorkoutBurn to that for the dashboard.
+            // However, Engine.adjustToGoal relies on the input TDEE.
+
+            const totalDailyBurn = tdee + workoutBurn; // BMR + Steps + Workouts
+            const limit = Engine.adjustToGoal(totalDailyBurn, user.goal);
 
             // Balance Calculations
             const bmr = user.bmr;
-            const activeBurn = Math.round((steps / 1000) * 40);
-            const totalOutput = Math.round(bmr * 1.2 + activeBurn);
+            const stepBurn = Math.round((steps / 1000) * 40);
+            const activeBurn = stepBurn + workoutBurn;
+            // const totalOutput = Math.round(bmr * 1.2 + activeBurn); // Original was BMR*1.2 ?? Wait, Engine.calculateDynamicTDEE does (BMR*1.2) + StepBurn.
+
+            // Let's stick to the Engine's output for consistency.
+            // Engine.calculateDynamicTDEE = (BMR * 1.2) + ((steps/1000)*40)
+            const totalOutput = totalDailyBurn;
 
             // "Remaining" Logic (Target - Intake)
             const remaining = limit - intake.calories;
@@ -243,8 +258,28 @@
                 const el = document.getElementById('stepsInput');
                 const s = parseInt(el.value);
                 if (s && !isNaN(s)) {
-                    setActivityLog(prev => [...prev, { id: Date.now().toString(), amount: s, timestamp: Date.now() }]);
+                    // Type: STEPS (Explicitly set to allow differentiation)
+                    setActivityLog(prev => [...prev, { id: Date.now().toString(), type: 'STEPS', amount: s, timestamp: Date.now() }]);
                     el.value = '';
+                }
+            };
+
+            const handleAddWorkout = () => {
+                const nameEl = document.getElementById('workoutName');
+                const calEl = document.getElementById('workoutCals');
+                const name = nameEl.value;
+                const cals = parseInt(calEl.value);
+
+                if (name && cals && !isNaN(cals)) {
+                    setActivityLog(prev => [...prev, {
+                        id: Date.now().toString(),
+                        type: 'WORKOUT',
+                        name: name,
+                        calories: cals,
+                        timestamp: Date.now()
+                    }]);
+                    nameEl.value = '';
+                    calEl.value = '';
                 }
             };
 
@@ -320,7 +355,7 @@
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div className="input-label">ACTIVE TDEE</div>
-                                <div style={{ color: '#fff' }}>{Math.round(tdee)} <span style={{ fontSize: '0.8em', color: '#666' }}>(BMR + NEAT + Activity)</span></div>
+                                <div style={{ color: '#fff' }}>{Math.round(totalOutput)} <span style={{ fontSize: '0.8em', color: '#666' }}>(BMR + Active)</span></div>
                             </div>
                         </div>
 
@@ -384,11 +419,23 @@
 
                             {/* Activity Logger */}
                             <div className="input-group" style={{ margin: 0 }}>
+                                <label className="input-label">ADD STEPS</label>
                                 <div style={{ display: 'flex', gap: '5px' }}>
-                                    <input type="number" className="tactical-input" id="stepsInput" placeholder="Add Steps" style={{ width: '60%' }} />
+                                    <input type="number" className="tactical-input" id="stepsInput" placeholder="e.g. 5000" style={{ width: '60%' }} />
                                     <button className="btn" style={{ width: '40%' }} onClick={handleAddSteps}>ADD</button>
                                 </div>
                             </div>
+
+                            {/* Workout Logger */}
+                            <div className="input-group" style={{ marginTop: '10px' }}>
+                                <label className="input-label">MANUAL WORKOUT (Lifting, etc)</label>
+                                <div style={{ display: 'flex', gap: '5px' }}>
+                                    <input className="tactical-input" id="workoutName" placeholder="Desc (e.g. Leg Day)" style={{ width: '50%' }} />
+                                    <input type="number" className="tactical-input" id="workoutCals" placeholder="Kcal" style={{ width: '30%' }} />
+                                    <button className="btn" style={{ width: '20%' }} onClick={handleAddWorkout}>ADD</button>
+                                </div>
+                            </div>
+
                         </div>
                         <div style={{ marginTop: '10px', textAlign: 'center' }}>
                             <span className="input-label">CURRENT STEPS: {steps}</span>
@@ -425,7 +472,16 @@
                             {activityLog.slice().reverse().map(item => (
                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
                                     <div style={{ fontSize: '0.9em' }}>
-                                        <span style={{ color: 'var(--hud-green)' }}>Steps</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.amount} / ~{Math.round((item.amount / 1000) * 40)} kcal)</span>
+                                        {item.type === 'WORKOUT' ? (
+                                            <>
+                                                <span style={{ color: 'var(--hud-orange)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span style={{ color: 'var(--hud-green)' }}>Steps</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.amount} / ~{Math.round((item.amount / 1000) * 40)} kcal)</span>
+                                            </>
+                                        )}
+
                                     </div>
                                     <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>[DEL]</button>
                                 </div>
