@@ -17,7 +17,19 @@ window.CIAO.Engine = {
     },
 
     calculateActivityBurn: function (weightKg, type, durationMinutes, distanceKm = 0) {
-        // MET Values (Metabolic Equivalent of Task)
+        // Distance-based Logic (More accurate for Run/Walk/Cycle than fixed METs)
+        // Coefficients (kcal per kg per km)
+        const DISTANCE_FACTORS = {
+            'run': 1.05,  // Net cost of transport logic
+            'walk': 0.75, // More efficient than running
+            'cycle': 0.35 // Mechanical efficiency
+        };
+
+        if (distanceKm > 0 && DISTANCE_FACTORS[type]) {
+            return Math.round(distanceKm * weightKg * DISTANCE_FACTORS[type]);
+        }
+
+        // Fallback or Time-based Logic (METs)
         const METS = {
             'steps': 0, // Handled separately
             'walk': 3.5,
@@ -29,20 +41,9 @@ window.CIAO.Engine = {
             'custom': 0
         };
 
-        // Auto-Calculate Duration from Distance if Time is missing
-        // Speed Defaults (km/h)
-        const SPEEDS = {
-            'walk': 4.8, // 3 mph
-            'run': 9.0, // 5.6 mph
-            'cycle': 20.0 // 12 mph
-        };
-
+        // Auto-Calculate Duration from Distance if Time is missing (Only for non-distance-factor types if they existed, but here we cover them above)
+        // Keeping this logic just in case we add more types later or distance factors fail.
         let calculatedDuration = durationMinutes;
-
-        // If no duration but we have distance, infer it
-        if ((!calculatedDuration || calculatedDuration === 0) && distanceKm > 0 && SPEEDS[type]) {
-            calculatedDuration = (distanceKm / SPEEDS[type]) * 60; // in minutes
-        }
 
         let met = METS[type] || 3.0; // Default to light activity if unknown
 
