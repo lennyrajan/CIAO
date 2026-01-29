@@ -648,6 +648,46 @@
                     {/* Dark Overlay for Modal */}
                     {showReport && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}></div>}
 
+                    {/* MISSION DATE & WEIGHT PANEL */}
+                    <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <div className="input-label" style={{ marginBottom: '2px' }}>OFFICIAL DATE</div>
+                            <div style={{ fontFamily: 'monospace', color: 'var(--hud-blue)', letterSpacing: '1px', fontSize: '0.9em' }}>
+                                {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}
+                            </div>
+                        </div>
+
+                        {weightEditMode ? (
+                            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                <input
+                                    type="number"
+                                    className="tactical-input"
+                                    style={{ width: '70px', textAlign: 'center' }}
+                                    value={newWeight}
+                                    onChange={e => setNewWeight(e.target.value)}
+                                />
+                                <button className="btn-icon" onClick={handleUpdateWeight} style={{ color: 'var(--hud-green)' }}>✓</button>
+                                <button className="btn-icon" onClick={() => setWeightEditMode(false)} style={{ color: 'var(--hud-red)' }}>✕</button>
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'right' }}>
+                                <div className="input-label" style={{ marginBottom: '2px' }}>CURRENT FORM</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
+                                    <span style={{ fontSize: '1.2em', color: '#fff', fontWeight: 'bold' }}>
+                                        {user.weight} <span style={{ fontSize: '0.6em', color: '#888' }}>{user.units === 'imperial' ? 'lbs' : 'kg'}</span>
+                                    </span>
+                                    <button
+                                        className="btn"
+                                        style={{ width: 'auto', padding: '2px 8px', fontSize: '0.7em', background: '#333', border: '1px solid #555' }}
+                                        onClick={() => { setNewWeight(user.weight); setWeightEditMode(true); }}
+                                    >
+                                        UPDATE
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     {/* PANEL 1: REMAINING BUDGET (Critical Status) */}
                     <div className="panel" style={{ borderColor: balanceColor }}>
                         <span className="header-text">REMAINING RATION</span>
