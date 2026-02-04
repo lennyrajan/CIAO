@@ -32,9 +32,9 @@ exports.handler = async function (event, context) {
   }
 
   Rules:
-  1. Identify all distinct food/drink items.
+  1. Identify all distinct food/drink items. Handle typos gracefully (e.g., "chocken" -> "chicken").
   2. If the user says "one apple", use ~182g. If "one coffee with milk", estimate the coffee + milk volume.
-  3. For complex dishes like "plate chicken biriyani", provide macros for a standard portion (e.g., 350-450g).
+  3. For complex dishes like "chicken biriyani", provide macros for a standard portion (e.g., 350-500g). Do not just return "chicken".
   4. If a meal prefix exists (e.g., "dinner:"), ignore the prefix but use it to contextually understand following items.
   5. RETURN ONLY THE RAW JSON ARRAY. No markdown, no triple backticks.
   `;
@@ -49,8 +49,13 @@ exports.handler = async function (event, context) {
         });
 
         if (!response.ok) {
-            return { statusCode: response.status, body: JSON.stringify({ error: 'Gemini API Error' }) };
+            const errorData = await response.json();
+            return {
+                statusCode: response.status,
+                body: JSON.stringify({ error: 'Gemini API Error', details: errorData })
+            };
         }
+
 
         const data = await response.json();
         return {

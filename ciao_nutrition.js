@@ -157,14 +157,16 @@ window.CIAO.Nutrition = {
         let match = null;
         let matchName = '';
         for (const [key, data] of Object.entries(this.OFFLINE_DB)) {
-            // Check for whole word match or strong substring
-            if (lower.includes(key)) {
+            // Use word boundary regex for precise matching
+            const regex = new RegExp(`\\b${key}\\b`, 'i');
+            if (regex.test(lower)) {
                 if (!match || key.length > matchName.length) { // Longest match wins
                     match = data;
                     matchName = key;
                 }
             }
         }
+
 
         if (!match) return null;
 
@@ -243,14 +245,20 @@ window.CIAO.Nutrition = {
                 apiQuery = `${manualAmount}g ${query}`; // Simplified assumption (g/ml)
             }
 
+            if (window.location.protocol === 'file:') {
+                throw new Error("AI Backend requires a web server (http/https). Functions are not available via file:// protocol.");
+            }
+
             console.log(`Fetching nutrition for: ${apiQuery} via Netlify Function`);
             const url = `/.netlify/functions/get-nutrition?query=${encodeURIComponent(apiQuery)}`;
 
             const response = await fetch(url);
 
             if (!response.ok) {
-                throw new Error("Netlify Function Error: " + response.statusText);
+                const errorInfo = await response.json().catch(() => ({ error: response.statusText }));
+                throw new Error(errorInfo.error || "Netlify Function Error");
             }
+
 
             const data = await response.json();
 
