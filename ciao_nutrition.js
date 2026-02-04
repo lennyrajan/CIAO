@@ -248,9 +248,9 @@ window.CIAO.Nutrition = {
             if (window.location.protocol === 'file:') {
                 throw new Error("AI Backend requires a web server (http/https). Functions are not available via file:// protocol.");
             }
-
-            console.log(`Fetching nutrition for: ${apiQuery} via Netlify Function`);
-            const url = `/.netlify/functions/get-nutrition?query=${encodeURIComponent(apiQuery)}`;
+            // v3.2.0 - Forced Sync Update
+            console.log(`Fetching nutrition for: ${apiQuery} via CIAO Intelligence API`);
+            const url = `/api/get-nutrition?query=${encodeURIComponent(apiQuery)}&v=${Date.now()}`;
 
             const response = await fetch(url);
             console.log(`Response Status: ${response.status} ${response.statusText}`);
