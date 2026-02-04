@@ -48,6 +48,7 @@ window.CIAO.Nutrition = {
             return result.user;
         } catch (error) {
             console.error("Sign In Error:", error);
+            alert("Login Failed: " + error.message);
             throw error;
         }
     },
