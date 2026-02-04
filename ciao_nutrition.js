@@ -1,8 +1,7 @@
 // CIAO Nutrition: API Integration & Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+// Uses Firebase Compat SDK (Loaded in index.html)
+
+window.CIAO = window.CIAO || {};
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -16,16 +15,16 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
-
-window.CIAO = window.CIAO || {};
+// Compat syntax: firebase.initializeApp()
+const app = firebase.initializeApp(firebaseConfig);
+const analytics = firebase.analytics();
+const auth = firebase.auth();
+const db = firebase.firestore();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // Expose Auth & DB to window for other scripts (optional debug)
-window.CIAO.Firebase = { auth, db, googleProvider, signInWithPopup };
+// Note: onAuthStateChanged is directly on auth object
+window.CIAO.Firebase = { auth, db, googleProvider, onAuthStateChanged: (authInstance, cb) => authInstance.onAuthStateChanged(cb) };
 
 window.CIAO.Nutrition = {
     // Auth Helpers
@@ -51,12 +50,14 @@ window.CIAO.Nutrition = {
 
     // --- FIRESTORE PERSISTENCE ---
 
+    // --- FIRESTORE PERSISTENCE ---
+
     saveUserProfile: async (uid, profile) => {
         if (!uid || !profile) return;
         try {
-            await setDoc(doc(db, "users", uid), {
+            await db.collection("users").doc(uid).set({
                 ...profile,
-                updatedAt: Timestamp.now()
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
         } catch (e) { console.error("Save Profile Error:", e); }
     },
@@ -64,8 +65,8 @@ window.CIAO.Nutrition = {
     getUserProfile: async (uid) => {
         if (!uid) return null;
         try {
-            const snap = await getDoc(doc(db, "users", uid));
-            if (snap.exists()) return snap.data();
+            const snap = await db.collection("users").doc(uid).get();
+            if (snap.exists) return snap.data();
         } catch (e) { console.error("Get Profile Error:", e); }
         return null;
     },
@@ -74,10 +75,10 @@ window.CIAO.Nutrition = {
         if (!uid || !dateString) return;
         try {
             // Path: users/{uid}/daily_logs/{YYYY-MM-DD}
-            const logRef = doc(db, "users", uid, "daily_logs", dateString);
-            await setDoc(logRef, {
+            const logRef = db.collection("users").doc(uid).collection("daily_logs").doc(dateString);
+            await logRef.set({
                 ...data, // { intake: [], steps: [] }
-                updatedAt: Timestamp.now()
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
             console.log("Cloud Save Success:", dateString);
         } catch (e) { console.error("Cloud Save Error:", e); }
@@ -86,8 +87,8 @@ window.CIAO.Nutrition = {
     getDailyLog: async (uid, dateString) => {
         if (!uid || !dateString) return null;
         try {
-            const snap = await getDoc(doc(db, "users", uid, "daily_logs", dateString));
-            if (snap.exists()) return snap.data();
+            const snap = await db.collection("users").doc(uid).collection("daily_logs").doc(dateString).get();
+            if (snap.exists) return snap.data();
         } catch (e) { console.error("Cloud Load Error:", e); }
         return null;
     },
