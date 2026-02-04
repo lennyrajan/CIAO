@@ -1,8 +1,96 @@
-// CIAO Nutrition: API Integration
+// CIAO Nutrition: API Integration & Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyB42IM7kp7_YdAy--Zn3K7FXUxtc-UUT5E",
+    authDomain: "ciao-tracker.firebaseapp.com",
+    projectId: "ciao-tracker",
+    storageBucket: "ciao-tracker.firebasestorage.app",
+    messagingSenderId: "1013919573815",
+    appId: "1:1013919573815:web:9a0aa408a81979c3c49cb2",
+    measurementId: "G-CGG1D2R1GW"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
 
 window.CIAO = window.CIAO || {};
 
+// Expose Auth & DB to window for other scripts (optional debug)
+window.CIAO.Firebase = { auth, db, googleProvider, signInWithPopup };
+
 window.CIAO.Nutrition = {
+    // Auth Helpers
+    signIn: async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            console.log("User signed in:", result.user);
+            return result.user;
+        } catch (error) {
+            console.error("Sign In Error:", error);
+            throw error;
+        }
+    },
+
+    signOut: async () => {
+        try {
+            await auth.signOut();
+            console.log("User signed out");
+        } catch (error) {
+            console.error("Sign Out Error:", error);
+        }
+    },
+
+    // --- FIRESTORE PERSISTENCE ---
+
+    saveUserProfile: async (uid, profile) => {
+        if (!uid || !profile) return;
+        try {
+            await setDoc(doc(db, "users", uid), {
+                ...profile,
+                updatedAt: Timestamp.now()
+            }, { merge: true });
+        } catch (e) { console.error("Save Profile Error:", e); }
+    },
+
+    getUserProfile: async (uid) => {
+        if (!uid) return null;
+        try {
+            const snap = await getDoc(doc(db, "users", uid));
+            if (snap.exists()) return snap.data();
+        } catch (e) { console.error("Get Profile Error:", e); }
+        return null;
+    },
+
+    saveDailyLog: async (uid, dateString, data) => {
+        if (!uid || !dateString) return;
+        try {
+            // Path: users/{uid}/daily_logs/{YYYY-MM-DD}
+            const logRef = doc(db, "users", uid, "daily_logs", dateString);
+            await setDoc(logRef, {
+                ...data, // { intake: [], steps: [] }
+                updatedAt: Timestamp.now()
+            }, { merge: true });
+            console.log("Cloud Save Success:", dateString);
+        } catch (e) { console.error("Cloud Save Error:", e); }
+    },
+
+    getDailyLog: async (uid, dateString) => {
+        if (!uid || !dateString) return null;
+        try {
+            const snap = await getDoc(doc(db, "users", uid, "daily_logs", dateString));
+            if (snap.exists()) return snap.data();
+        } catch (e) { console.error("Cloud Load Error:", e); }
+        return null;
+    },
 
     // Fallback dictionary for common items (per 100g approx, or per unit)
     OFFLINE_DB: {

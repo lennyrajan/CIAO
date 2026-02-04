@@ -20,7 +20,7 @@
     <!-- App Logic -->
     <script src="ciao_engine.js"></script>
     <script src="ciao_physics.js"></script>
-    <script src="ciao_nutrition.js"></script>
+    <script type="module" src="ciao_nutrition.js"></script>
     <script src="ciao_storage.js"></script>
 </head>
 
@@ -46,7 +46,7 @@
 
         /* --- UI COMPONENTS --- */
 
-        function Header({ user }) {
+        function Header({ user, onLogin, onLogout }) {
             const getRankParam = () => {
                 if (!user || typeof RANKS === 'undefined') return null;
                 const xp = user.xp || 0;
@@ -67,7 +67,7 @@
                             {!user && <div className="site-desc">BODY METRICS DASHBOARD</div>}
                         </div>
 
-                        {user && (
+                        {user ? (
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ color: 'var(--hud-green)', fontWeight: 'bold', fontSize: '1.2em', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 0 10px rgba(0,255,65,0.4)' }}>
                                     {user.rankTitle || 'RECRUIT'} {user.name || 'OPERATIVE'}
@@ -75,8 +75,14 @@
                                 <div style={{ fontSize: '0.75em', color: '#888', marginTop: '2px' }}>
                                     DAY {user.xp || 0} <span style={{ color: '#444', margin: '0 4px' }}>//</span> {rankData ? rankData.label : ''}
                                 </div>
-                                <div className="input-label">UNIT VERSION</div>
-                                <div style={{ color: 'var(--hud-blue)', fontSize: '0.8em' }}>v3.2.0-SYNC</div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '5px' }}>
+                                    <div style={{ color: 'var(--hud-blue)', fontSize: '0.8em', alignSelf: 'center' }}>v3.2.0-SYNC</div>
+                                    <button onClick={onLogout} style={{ background: 'none', border: '1px solid #333', color: '#666', fontSize: '0.7em', padding: '2px 5px', cursor: 'pointer' }}>LOGOUT</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'right' }}>
+                                <button onClick={onLogin} className="btn btn-primary" style={{ padding: '5px 15px', fontSize: '0.9em' }}>LOGIN WITH GOOGLE</button>
                             </div>
                         )}
                     </div>
@@ -326,7 +332,7 @@
             );
         }
 
-        function Dashboard({ user, onReset, setUser }) {
+        function Dashboard({ user, onReset, setUser, authUser, onLogin, onLogout }) {
             // Replaced handleResetSystem with prop call
             const handleResetSystem = onReset;
             // State: Itemized logs now
@@ -349,37 +355,51 @@
 
             // Load Daily Log (Migration Logic included)
             useEffect(() => {
-                const log = Storage.getTodayLog();
-                if (log) {
-                    // Migration: if log.steps is a number, convert to [entry]
-                    if (typeof log.steps === 'number') {
-                        setActivityLog(log.steps > 0 ? [{ id: 'legacy-steps', amount: log.steps, timestamp: Date.now() }] : []);
-                    } else {
-                        setActivityLog(log.steps || []);
+                const loadLogs = async () => {
+                    // 1. Local Load (Instant)
+                    const log = Storage.getTodayLog();
+                    if (log) {
+                        if (typeof log.steps === 'number') {
+                            setActivityLog(log.steps > 0 ? [{ id: 'legacy-steps', amount: log.steps, timestamp: Date.now() }] : []);
+                        } else {
+                            setActivityLog(log.steps || []);
+                        }
+
+                        if (log.intake && !Array.isArray(log.intake) && log.intake.calories > 0) {
+                            setFoodLog([{ id: 'legacy-food', name: 'Legacy Entry', ...log.intake, timestamp: Date.now() }]);
+                        } else if (Array.isArray(log.intake)) {
+                            setFoodLog(log.intake);
+                        } else {
+                            setFoodLog([]);
+                        }
                     }
 
-                    // Migration: if log.intake is single object, convert to [entry]
-                    if (log.intake && !Array.isArray(log.intake) && log.intake.calories > 0) {
-                        setFoodLog([{
-                            id: 'legacy-food',
-                            name: 'Legacy Entry',
-                            ...log.intake,
-                            timestamp: Date.now()
-                        }]);
-                    } else if (Array.isArray(log.intake)) {
-                        setFoodLog(log.intake);
-                    } else {
-                        setFoodLog([]);
+                    // 2. Cloud Load (Async Overwrite)
+                    if (authUser) {
+                        const today = new Date().toISOString().split('T')[0];
+                        const cloudLog = await window.CIAO.Nutrition.getDailyLog(authUser.uid, today);
+                        if (cloudLog) {
+                            console.log("Dashboard: Synced Logs from Cloud");
+                            if (cloudLog.intake) setFoodLog(cloudLog.intake);
+                            if (cloudLog.steps) setActivityLog(cloudLog.steps);
+                        }
                     }
-                }
-                // Load history on mount
-                setHistory(Storage.getHistory());
-            }, []);
+                };
+                loadLogs();
+            }, [authUser]); // Re-run when authUser changes (e.g. login)
 
-            // Save on Change (Save as arrays now)
+            // Save on Change (Local + Cloud)
             useEffect(() => {
-                Storage.saveTodayLog({ steps: activityLog, intake: foodLog });
-            }, [activityLog, foodLog]);
+                const data = { steps: activityLog, intake: foodLog };
+                // Local Save
+                Storage.saveTodayLog(data);
+
+                // Cloud Save (Debounced?) - Firestore handles rapid writes well enough for this volume
+                if (authUser) {
+                    const today = new Date().toISOString().split('T')[0];
+                    window.CIAO.Nutrition.saveDailyLog(authUser.uid, today, data);
+                }
+            }, [activityLog, foodLog, authUser]);
 
             // Calculations (Aggregating arrays)
             const steps = useMemo(() => activityLog.reduce((sum, item) => sum + (item.type === 'WORKOUT' ? 0 : item.amount), 0), [activityLog]);
@@ -645,7 +665,7 @@
             return (
                 <div className="container">
                     <div style={{ position: 'relative' }}>
-                        <Header user={user} />
+                        <Header user={user} authUser={authUser} onLogin={onLogin} onLogout={onLogout} />
                         <button
                             style={{
                                 position: 'absolute',
@@ -1420,6 +1440,51 @@
 
         function App() {
             const [user, setUser] = useState(Storage.getUser());
+            const [authUser, setAuthUser] = useState(null);
+
+            useEffect(() => {
+                // Listen for Firebase Auth State
+                const { auth, onAuthStateChanged } = window.CIAO.Firebase;
+                const unsubscribe = onAuthStateChanged(auth, async (u) => {
+                    if (u) {
+                        console.log("App: Auth User Detected", u.email);
+                        setAuthUser(u);
+
+                        // Load Profile from Cloud
+                        const cloudProfile = await window.CIAO.Nutrition.getUserProfile(u.uid);
+                        if (cloudProfile) {
+                            console.log("App: Synced Profile from Cloud");
+                            setUser(cloudProfile);
+                        } else if (user) {
+                            // First Login: Upload Local Profile
+                            console.log("App: Uploading Init Profile to Cloud");
+                            await window.CIAO.Nutrition.saveUserProfile(u.uid, user);
+                        }
+                    } else {
+                        console.log("App: User Signed Out");
+                        setAuthUser(null);
+                    }
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // Auto-Save Profile Changes to Cloud
+            useEffect(() => {
+                if (user && authUser) {
+                    const timer = setTimeout(() => {
+                        window.CIAO.Nutrition.saveUserProfile(authUser.uid, user);
+                    }, 2000); // 2s Debounce
+                    return () => clearTimeout(timer);
+                }
+            }, [user, authUser]);
+
+            const handleLogin = async () => {
+                await window.CIAO.Nutrition.signIn();
+            };
+
+            const handleLogout = async () => {
+                await window.CIAO.Nutrition.signOut();
+            };
 
             const handleOnboardingComplete = (newUser) => {
                 setUser(newUser);
@@ -1436,7 +1501,17 @@
                 return <Onboarding onComplete={handleOnboardingComplete} />;
             }
 
-            return <Dashboard user={user} onReset={handleReset} setUser={setUser} />;
+            // Inject Auth props into Dashboard, which will pass them to Header
+            return (
+                <Dashboard
+                    user={user}
+                    authUser={authUser}
+                    onReset={handleReset}
+                    setUser={setUser}
+                    onLogin={handleLogin}
+                    onLogout={handleLogout}
+                />
+            );
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
