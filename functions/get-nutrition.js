@@ -11,10 +11,8 @@ exports.handler = async function (event, context) {
         return { statusCode: 500, body: JSON.stringify({ error: 'Server misconfiguration: GOOGLE_API_KEY missing' }) };
     }
 
-    const model = 'gemini-1.5-flash-latest';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    console.log(`Backend calling: https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent...`);
+    const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.0-pro'];
+    let lastError = null;
 
     const prompt = `
   Analyze this food query: "${query}". 
@@ -41,39 +39,51 @@ exports.handler = async function (event, context) {
   5. RETURN ONLY THE RAW JSON ARRAY. No markdown, no triple backticks.
   `;
 
-    try {
-        console.log("Calling Google Gemini API...");
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
-        });
+    for (const model of models) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        console.log(`Attempting Gemini API with model: ${model}...`);
 
-        if (!response.ok) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`Success with model: ${model}`);
+                return {
+                    statusCode: 200,
+                    body: JSON.stringify(data)
+                };
+            }
+
             const errorText = await response.text();
-            console.error("Google API Response Error:", response.status, errorText);
-            let errorData;
-            try { errorData = JSON.parse(errorText); } catch (e) { errorData = errorText; }
+            console.warn(`Model ${model} failed with ${response.status}: ${errorText}`);
+            lastError = { status: response.status, text: errorText, model };
 
-            return {
-                statusCode: response.status,
-                body: JSON.stringify({ error: 'Gemini API Error', details: errorData })
-            };
+            // If it's a 404, we continue to the next model. 
+            // If it's a 429 (quota) or 400 (bad prompt), we might want to stop, 
+            // but for safety let's try the next model regardless of the error type if it's not a success.
+            continue;
+
+        } catch (error) {
+            console.error(`Fetch error for model ${model}:`, error);
+            lastError = { status: 500, text: error.message, model };
+            continue;
         }
-
-        const data = await response.json();
-        return {
-            statusCode: 200,
-            body: JSON.stringify(data)
-        };
-
-    } catch (error) {
-        console.error("Function Error:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Internal Server Error: ${error.message}` })
-        };
     }
+
+    // If we reach here, all models failed
+    return {
+        statusCode: lastError.status || 500,
+        body: JSON.stringify({
+            error: 'All Gemini models failed',
+            last_attempted: lastError.model,
+            details: lastError.text
+        })
+    };
 };
