@@ -51,34 +51,45 @@
 
         /* --- UI COMPONENTS --- */
 
-        function Header({ user, onLogin, onLogout }) {
+        function Header({ user, onLogin, onLogout, theme }) {
+            const txt = THEME_STRINGS[theme] || THEME_STRINGS.tactical;
+
             const getRankParam = () => {
                 if (!user || typeof RANKS === 'undefined') return null;
                 const xp = user.xp || 0;
                 const next = RANKS.find(r => r.threshold > xp);
-                if (!next) return { label: 'MAX RANK', pct: 100 };
+                if (!next) return { label: txt.maxRank, pct: 100 };
 
-                return { label: `RANK UP: ${next.threshold - xp} DAYS`, pct: 0 };
+                return { label: `${txt.rankUpPrefix}${next.threshold - xp} DAYS`, pct: 0 };
             };
 
             const rankData = getRankParam();
+
+            // Format Name/Rank Display
+            let displayName = user ? (user.name || txt.userLabel) : '';
+            let displayRank = user ? (user.rankTitle || 'RECRUIT') : '';
+
+            if (theme === 'modern' && user) {
+                // In modern mode, hide military rank, just show Name
+                displayRank = '';
+            }
 
             return (
                 <div className="site-header">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', minHeight: '40px' }}>
                         <div>
-                            <div className="title-main">CIAO</div>
-                            <div className="title-sub">TACTICAL RECON</div>
+                            <div className="title-main">{txt.titleMain}</div>
+                            <div className="title-sub">{txt.titleSub}</div>
                             {!user && <div className="site-desc">BODY METRICS DASHBOARD</div>}
                         </div>
 
                         {user ? (
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ color: 'var(--hud-green)', fontWeight: 'bold', fontSize: '1.2em', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 0 10px rgba(0,255,65,0.4)' }}>
-                                    {user.rankTitle || 'RECRUIT'} {user.name || 'OPERATIVE'}
+                                <div style={{ color: 'var(--hud-green)', fontWeight: 'bold', fontSize: '1.2em', textTransform: 'uppercase', letterSpacing: theme === 'tactical' ? '2px' : '0px', textShadow: theme === 'tactical' ? '0 0 10px rgba(0,255,65,0.4)' : 'none' }}>
+                                    {displayRank} {displayName}
                                 </div>
                                 <div style={{ fontSize: '0.75em', color: '#888', marginTop: '2px' }}>
-                                    DAY {user.xp || 0} <span style={{ color: '#444', margin: '0 4px' }}>//</span> {rankData ? rankData.label : ''}
+                                    {txt.dayPrefix}{user.xp || 0} <span style={{ color: '#444', margin: '0 4px' }}>//</span> {rankData ? rankData.label : ''}
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '5px' }}>
                                     <div style={{ color: 'var(--hud-blue)', fontSize: '0.8em', alignSelf: 'center' }}>v3.2.0-SYNC</div>
@@ -149,14 +160,104 @@
             { title: 'GENERAL', threshold: 365 }
         ];
 
+        const THEME_STRINGS = {
+            tactical: {
+                titleMain: 'CIAO',
+                titleSub: 'TACTICAL RECON',
+                welcomeGuest: 'CONTINUE AS GUEST',
+                guestNote: 'Guest Access: Limited to 3 Days',
+                dashboardTitle: 'CIAO // DASHBOARD',
+                status: 'OPERATIONAL',
+                userLabel: 'OPERATIVE',
+                rankLabel: 'CURRENT RANK',
+                xpLabel: 'XP',
+                missionPanel: 'MISSION STATUS',
+                intakeLabel: 'KCAL CONSUMED',
+                targetLabel: 'MISSION TARGET',
+                logPanel: 'MISSION LOG',
+                rationsHeaders: 'RATIONS',
+                activityHeader: 'ACTIVITY',
+                intelBtn: 'INTEL REPORT',
+                closeDayBtn: 'CLOSE DAY',
+                resetDayBtn: 'RESET DAY',
+                physMod: 'PHYSICS MODIFIERS',
+                airFryer: 'AIR FRYER MODE',
+                scanBtn: 'INITIATE SCAN',
+                manualBtn: 'MANUAL ENTRY',
+                addCalsBtn: 'ADD CALORIES',
+                addStepsBtn: 'ADD STEPS',
+                stepsLabel: 'CURRENT STEPS',
+                overlayTitle: 'TARGET ACQUIRED',
+                overlaySub: 'BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.',
+                overlayCount: 'T-MINUS',
+                confirmEntries: 'CONFIRM ENTRIES',
+                logAll: 'LOG ALL',
+                delBtn: '[DEL]',
+                sysParams: 'SYSTEM PARAMETERS',
+                baseBmr: 'BASE BMR',
+                activeTdee: 'ACTIVE TDEE',
+                strategyLabel: 'STRATEGY',
+                stratCut: 'INFILTRATE (-500)',
+                stratBulk: 'ASSAULT (+300)',
+                stratMaint: 'RECON (MAINTAIN)',
+                rankUpPrefix: 'RANK UP: ',
+                maxRank: 'MAX RANK',
+                dayPrefix: 'DAY ',
+            },
+            modern: {
+                titleMain: 'CIAO',
+                titleSub: 'BODY INSIGHTS',
+                welcomeGuest: 'TRY AS GUEST',
+                guestNote: 'Guest Mode (3 Days)',
+                dashboardTitle: 'Overview',
+                status: 'Active',
+                userLabel: 'MEMBER',
+                rankLabel: 'STREAK LEVEL',
+                xpLabel: 'Points',
+                missionPanel: 'Daily Intake',
+                intakeLabel: 'Calories Consumed',
+                targetLabel: 'Daily Target',
+                logPanel: 'History',
+                rationsHeaders: 'Meals',
+                activityHeader: 'Exercise',
+                intelBtn: 'Trends',
+                closeDayBtn: 'Finish Day',
+                resetDayBtn: 'Reset',
+                physMod: 'Advanced Options',
+                airFryer: 'Reduce Fat (Air Fry)',
+                scanBtn: 'Scan Food',
+                manualBtn: 'Manual Add',
+                addCalsBtn: 'Add Calories',
+                addStepsBtn: 'Add Steps',
+                stepsLabel: 'Steps Today',
+                overlayTitle: 'Goals Updated',
+                overlaySub: 'Your daily targets have been adjusted based on your activity.',
+                overlayCount: 'Closing in',
+                confirmEntries: 'Add Items',
+                logAll: 'Log All',
+                delBtn: 'Remove',
+                sysParams: 'Daily Stats',
+                baseBmr: 'Base BMR',
+                activeTdee: 'Total Burn',
+                strategyLabel: 'Current Goal',
+                stratCut: 'Lose Weight (-500)',
+                stratBulk: 'Gain Muscle (+300)',
+                stratMaint: 'Maintain Weight',
+                rankUpPrefix: 'Next Level: ',
+                maxRank: 'Max Level',
+                dayPrefix: 'Streak: ',
+            }
+        };
+
         function WelcomeScreen({ onLogin, onGuest, theme, setTheme }) {
+            const txt = THEME_STRINGS[theme];
             return (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '20px', textAlign: 'center' }}>
 
                     {/* Logo Area */}
                     <div style={{ marginBottom: '40px' }}>
-                        <div className="title-main" style={{ fontSize: '4em' }}>CIAO</div>
-                        <div className="title-sub" style={{ fontSize: '1.2em' }}>TACTICAL RECON</div>
+                        <div className="title-main" style={{ fontSize: '4em' }}>{txt.titleMain}</div>
+                        <div className="title-sub" style={{ fontSize: '1.2em' }}>{txt.titleSub}</div>
                     </div>
 
                     {/* Theme Toggle */}
@@ -187,10 +288,10 @@
                             LOGIN WITH GOOGLE
                         </button>
                         <button className="btn" style={{ width: '100%', padding: '15px', borderColor: 'var(--text-dim)', color: 'var(--text-dim)' }} onClick={onGuest}>
-                            CONTINUE AS GUEST
+                            {txt.welcomeGuest}
                         </button>
                         <div style={{ marginTop: '10px', fontSize: '0.8em', color: 'var(--text-dim)' }}>
-                            Guest Access: Limited to 3 Days
+                            {txt.guestNote}
                         </div>
                     </div>
                 </div>
@@ -361,10 +462,10 @@
                                     fontWeight: 'bold',
                                     textShadow: '0 0 10px var(--hud-green)'
                                 }}>
-                                    TARGET ACQUIRED
+                                    {txt.overlayTitle}
                                 </div>
                                 <div style={{ color: '#fff', marginBottom: '30px', fontFamily: 'monospace' }}>
-                                    BIOMETRIC PARAMETERS LOCKED. RECONNAISSANCE SYSTEMS ONLINE.
+                                    {txt.overlaySub}
                                 </div>
                                 <div style={{
                                     fontSize: '4em',
@@ -376,7 +477,7 @@
                                     padding: '10px 30px',
                                     background: 'rgba(0, 255, 65, 0.1)'
                                 }}>
-                                    T-MINUS {countdown}
+                                    {txt.overlayCount} {countdown}
                                 </div>
                             </div>
                         </div>
@@ -385,7 +486,8 @@
             );
         }
 
-        function Dashboard({ user, onReset, setUser, authUser, onLogin, onLogout }) {
+        function Dashboard({ user, onReset, setUser, authUser, onLogin, onLogout, theme }) {
+            const txt = THEME_STRINGS[theme] || THEME_STRINGS.tactical;
             // Replaced handleResetSystem with prop call
             const handleResetSystem = onReset;
             // State: Itemized logs now
@@ -718,7 +820,7 @@
             return (
                 <div className="container">
                     <div style={{ position: 'relative' }}>
-                        <Header user={user} authUser={authUser} onLogin={onLogin} onLogout={onLogout} />
+                        <Header user={user} authUser={authUser} onLogin={onLogin} onLogout={onLogout} theme={theme} />
                         <button
                             style={{
                                 position: 'absolute',
@@ -1237,7 +1339,7 @@
                                             } catch (e) {
                                                 alert("Scan Failed: " + e.message);
                                             }
-                                        }}>SCAN</button>
+                                        }}>{txt.scanBtn}</button>
 
                                     </div>
                                 </div>
@@ -1246,7 +1348,7 @@
                                 {batchResults && (
                                     <div className="panel" style={{ background: 'rgba(0, 255, 65, 0.05)', border: '1px solid var(--hud-green)', marginBottom: '1.5rem', animation: 'fadeIn 0.3s ease-out' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                            <span className="header-text" style={{ color: 'var(--hud-green)', fontSize: '0.9em' }}>BATCH INTEL DETECTED</span>
+                                            <span className="header-text" style={{ color: 'var(--hud-green)', fontSize: '0.9em' }}>BATCH RESULTS</span>
                                             <button className="btn" style={{ width: 'auto', padding: '2px 8px', fontSize: '0.7em' }} onClick={() => setBatchResults(null)}>CANCEL</button>
                                         </div>
                                         <div style={{ maxHeight: '250px', overflowY: 'auto', marginBottom: '15px' }}>
@@ -1288,7 +1390,7 @@
                                                 alert(`Logged ${newEntries.length} items to mission log.`);
                                             }}
                                         >
-                                            LOG ALL {batchResults.length} ITEMS
+                                            {txt.logAll} {batchResults.length} ITEMS
                                         </button>
                                     </div>
                                 )}
@@ -1355,12 +1457,12 @@
                                 </div>
                                 <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
                                     <input type="checkbox" id="af" checked={foodForm.airfry} onChange={e => setFoodForm({ ...foodForm, airfry: e.target.checked })} />
-                                    <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>AIR FRYER MODE (Reduces Fat)</label>
+                                    <label htmlFor="af" className="input-label" style={{ marginBottom: 0 }}>{txt.airFryer}</label>
                                 </div>
 
                                 {/* Advanced Physics */}
                                 <div className="panel" style={{ marginTop: '10px', background: 'transparent', border: 'var(--glass-border)' }}>
-                                    <span className="input-label">PHYSICS MODIFIERS</span>
+                                    <span className="input-label">{txt.physMod}</span>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                         <div className="input-group">
                                             <label className="input-label">Bone % (Waste)</label>
@@ -1373,7 +1475,7 @@
                                     </div>
                                 </div>
 
-                                <button className="btn btn-primary" onClick={handleAddFood}>CONFIRM ENTRIES</button>
+                                <button className="btn btn-primary" onClick={handleAddFood}>{txt.confirmEntries}</button>
                             </div>
                         )}
 
@@ -1388,25 +1490,25 @@
                                     setFoodLog([]);
                                     setActivityLog([]);
                                 }
-                            }}>RESET DAY</button>
-                            <button style={{ background: 'var(--hud-green)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowTrends(true)}>INTEL REPORT</button>
-                            <button style={{ background: 'var(--hud-blue)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={handleCloseDay}>CLOSE DAY</button>
+                            }}>{txt.resetDayBtn}</button>
+                            <button style={{ background: 'var(--hud-green)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowTrends(true)}>{txt.intelBtn}</button>
+                            <button style={{ background: 'var(--hud-blue)', border: 'none', color: '#000', padding: '5px 10px', fontSize: '0.8em', fontWeight: 'bold', cursor: 'pointer' }} onClick={handleCloseDay}>{txt.closeDayBtn}</button>
                         </div>
                     </div>
 
                     {/* PANEL 3: MISSION STATUS (INTAKE) */}
                     <div className="panel" style={{ textAlign: 'center', borderColor: status.color }}>
-                        <span className="header-text">MISSION INTAKE</span>
+                        <span className="header-text">{txt.missionPanel}</span>
                         <div className="value-huge" style={{ color: status.color === 'red' ? 'var(--hud-red)' : 'var(--hud-green)' }}>
                             {intake.calories}
                         </div>
-                        <span className="input-label" style={{ letterSpacing: '5px' }}>KCAL CONSUMED</span>
+                        <span className="input-label" style={{ letterSpacing: '5px' }}>{txt.intakeLabel}</span>
 
                         <div className="gauge-bar" style={{ marginTop: '15px' }}>
                             <div className={`gauge-fill ${status.color === 'red' ? 'fill-red' : 'fill-green'}`} style={{ width: `${Math.min(100, (intake.calories / limit) * 100)}%` }}></div>
                         </div>
                         <div style={{ marginTop: '5px', fontSize: '0.8em', color: status.color, textAlign: 'right' }}>
-                            MISSION TARGET: {limit}
+                            {txt.targetLabel}: {limit}
                         </div>
                     </div>
 
@@ -1420,25 +1522,25 @@
 
                     {/* MISSION LOG (HISTORY) */}
                     <div className="panel">
-                        <span className="header-text" style={{ color: 'var(--text-dim)' }}>MISSION LOG</span>
+                        <span className="header-text" style={{ color: 'var(--text-dim)' }}>{txt.logPanel}</span>
 
                         {/* Food List */}
                         <div style={{ marginBottom: '10px' }}>
-                            <div className="input-label" style={{ borderBottom: 'var(--glass-border)' }}>RATIONS</div>
+                            <div className="input-label" style={{ borderBottom: 'var(--glass-border)' }}>{txt.rationsHeaders}</div>
                             {foodLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No rations logged.</div>}
                             {foodLog.slice().reverse().map(item => (
                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: 'var(--glass-border)' }}>
                                     <div style={{ fontSize: '0.9em' }}>
                                         <span style={{ color: 'var(--hud-blue)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
                                     </div>
-                                    <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('food', item.id)}>[DEL]</button>
+                                    <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('food', item.id)}>{txt.delBtn}</button>
                                 </div>
                             ))}
                         </div>
 
                         {/* Activity List */}
                         <div>
-                            <div className="input-label" style={{ borderBottom: '1px solid #333' }}>ACTIVITY</div>
+                            <div className="input-label" style={{ borderBottom: '1px solid #333' }}>{txt.activityHeader}</div>
                             {activityLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No activity logged.</div>}
                             {activityLog.slice().reverse().map(item => (
                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
@@ -1454,7 +1556,7 @@
                                         )}
 
                                     </div>
-                                    <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>[DEL]</button>
+                                    <button style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.8em' }} onClick={() => deleteItem('activity', item.id)}>{txt.delBtn}</button>
                                 </div>
                             ))}
                         </div>
@@ -1462,24 +1564,24 @@
 
                     {/* FOOTER: MISSION BRIEFING (Reference Info) */}
                     <div className="panel" style={{ opacity: 0.8 }}>
-                        <span className="header-text">SYSTEM PARAMETERS</span>
+                        <span className="header-text">{txt.sysParams}</span>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em' }}>
                             <div>
-                                <div className="input-label">BASE BMR</div>
+                                <div className="input-label">{txt.baseBmr}</div>
                                 <div style={{ color: '#fff' }}>{Math.round(bmr)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                                <div className="input-label">ACTIVE TDEE</div>
+                                <div className="input-label">{txt.activeTdee}</div>
                                 <div style={{ color: '#fff' }}>{Math.round(totalOutput)} <span style={{ fontSize: '0.8em', color: '#666' }}></span></div>
                             </div>
                         </div>
 
                         <div style={{ borderTop: '1px dashed #444', margin: '10px 0', padding: '10px 0' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span className="input-label">STRATEGY</span>
+                                <span className="input-label">{txt.strategyLabel}</span>
                                 <span style={{ color: user.goal === 'cut' ? 'var(--hud-green)' : (user.goal === 'bulk' ? 'var(--hud-red)' : 'var(--hud-blue)') }}>
-                                    {user.goal === 'cut' ? 'INFILTRATE (-500)' : (user.goal === 'bulk' ? 'ASSAULT (+300)' : 'RECON (MAINTAIN)')}
+                                    {user.goal === 'cut' ? txt.stratCut : (user.goal === 'bulk' ? txt.stratBulk : txt.stratMaint)}
                                 </span>
                             </div>
                         </div>
@@ -1644,6 +1746,7 @@
                         setUser={setUser}
                         onLogin={handleLogin}
                         onLogout={handleLogout}
+                        theme={theme}
                     />
                 );
             }

@@ -21,6 +21,10 @@
     --font-main: 'Courier New', Courier, monospace;
     --letter-spacing-title: 5px;
     --radius-main: 8px;
+
+    /* Background */
+    --bg-pattern: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    --bg-size: 20px 20px;
 }
 
 /* MODERN / SLEEK */
@@ -52,6 +56,10 @@
     --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --letter-spacing-title: 0px;
     --radius-main: 16px;
+
+    /* Background */
+    --bg-pattern: none;
+    --bg-size: auto;
 }
 
 body {
@@ -61,10 +69,8 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    background-image:
-        linear-gradient(var(--grid-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: var(--bg-pattern);
+    background-size: var(--bg-size);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
