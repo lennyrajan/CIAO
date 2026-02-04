@@ -127,7 +127,7 @@
                 <div className="input-group">
                     <div className="flex justify-between" style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span className="input-label">{label}</span>
-                        <span className="input-label" style={{ color: 'white' }}>{value} / {max} {unit}</span>
+                        <span className="input-label" style={{ color: 'var(--text-main)' }}>{value} / {max} {unit}</span>
                     </div>
                     <div className="gauge-bar">
                         <div className={`gauge-fill ${colorClass}`} style={{ width: `${percent}%` }}></div>
@@ -148,6 +148,54 @@
             { title: 'COLONEL', threshold: 180 },
             { title: 'GENERAL', threshold: 365 }
         ];
+
+        function WelcomeScreen({ onLogin, onGuest, theme, setTheme }) {
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '20px', textAlign: 'center' }}>
+
+                    {/* Logo Area */}
+                    <div style={{ marginBottom: '40px' }}>
+                        <div className="title-main" style={{ fontSize: '4em' }}>CIAO</div>
+                        <div className="title-sub" style={{ fontSize: '1.2em' }}>TACTICAL RECON</div>
+                    </div>
+
+                    {/* Theme Toggle */}
+                    <div style={{ display: 'flex', gap: '20px', marginBottom: '40px' }}>
+                        <div
+                            className="panel"
+                            style={{ width: '120px', cursor: 'pointer', border: theme === 'tactical' ? '2px solid var(--hud-green)' : '1px solid #333', opacity: theme === 'tactical' ? 1 : 0.5 }}
+                            onClick={() => setTheme('tactical')}
+                        >
+                            <div style={{ height: '30px', background: '#0a0b10', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ color: '#00ff41', fontFamily: 'monospace' }}>&gt;_</span>
+                            </div>
+                            <span className="input-label">TACTICAL</span>
+                        </div>
+                        <div
+                            className="panel"
+                            style={{ width: '120px', cursor: 'pointer', border: theme === 'modern' ? '2px solid var(--hud-blue)' : '1px solid #333', background: '#f5f5f7', opacity: theme === 'modern' ? 1 : 0.5, color: '#000' }}
+                            onClick={() => setTheme('modern')}
+                        >
+                            <div style={{ height: '30px', background: '#fff', marginBottom: '10px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}></div>
+                            <span className="input-label" style={{ color: '#000' }}>MODERN</span>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ width: '100%', maxWidth: '300px' }}>
+                        <button className="btn btn-primary" style={{ padding: '15px', fontSize: '1.1em', marginBottom: '15px' }} onClick={onLogin}>
+                            LOGIN WITH GOOGLE
+                        </button>
+                        <button className="btn" style={{ width: '100%', padding: '15px', borderColor: 'var(--text-dim)', color: 'var(--text-dim)' }} onClick={onGuest}>
+                            CONTINUE AS GUEST
+                        </button>
+                        <div style={{ marginTop: '10px', fontSize: '0.8em', color: 'var(--text-dim)' }}>
+                            Guest Access: Limited to 3 Days
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         function Onboarding({ onComplete }) {
             const [form, setForm] = useState({
@@ -1302,7 +1350,7 @@
                                     </div>
                                     <div className="input-group" style={{ marginBottom: 0 }}>
                                         <label className="input-label" style={{ fontSize: '0.7em' }}>Kcal</label>
-                                        <input type="number" readOnly className="tactical-input" style={{ background: '#111', border: 'none', color: '#fff', padding: '5px', fontSize: '0.9em' }} value={foodForm.cals} />
+                                        <input type="number" readOnly className="tactical-input" style={{ background: 'var(--hud-bg)', border: 'none', color: 'var(--text-main)', padding: '5px', fontSize: '0.9em' }} value={foodForm.cals} />
                                     </div>
                                 </div>
                                 <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
@@ -1311,7 +1359,7 @@
                                 </div>
 
                                 {/* Advanced Physics */}
-                                <div className="panel" style={{ marginTop: '10px', background: 'rgba(0,0,0,0.3)' }}>
+                                <div className="panel" style={{ marginTop: '10px', background: 'transparent', border: 'var(--glass-border)' }}>
                                     <span className="input-label">PHYSICS MODIFIERS</span>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                         <div className="input-group">
@@ -1333,7 +1381,7 @@
                             <span className="input-label">CURRENT STEPS: {steps}</span>
                         </div>
 
-                        <div style={{ borderTop: '1px solid #333', marginTop: '15px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                        <div style={{ borderTop: 'var(--glass-border)', marginTop: '15px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
                             <button style={{ background: 'none', border: '1px solid #555', color: '#888', padding: '5px 10px', fontSize: '0.8em', cursor: 'pointer' }} onClick={() => {
                                 if (confirm("RESET CURRENT DAY LOGS? (History preserved)")) {
                                     Storage.clearTodayLog();
@@ -1376,10 +1424,10 @@
 
                         {/* Food List */}
                         <div style={{ marginBottom: '10px' }}>
-                            <div className="input-label" style={{ borderBottom: '1px solid #333' }}>RATIONS</div>
+                            <div className="input-label" style={{ borderBottom: 'var(--glass-border)' }}>RATIONS</div>
                             {foodLog.length === 0 && <div style={{ fontSize: '0.8em', color: '#555', fontStyle: 'italic' }}>No rations logged.</div>}
                             {foodLog.slice().reverse().map(item => (
-                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed #222' }}>
+                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: 'var(--glass-border)' }}>
                                     <div style={{ fontSize: '0.9em' }}>
                                         <span style={{ color: 'var(--hud-blue)' }}>{item.name}</span> <span style={{ fontSize: '0.8em', color: '#666' }}>({item.calories} kcal)</span>
                                     </div>
@@ -1447,6 +1495,45 @@
             const [user, setUser] = useState(Storage.getUser());
             const [authUser, setAuthUser] = useState(null);
 
+            // Screen State: 'loading', 'welcome', 'onboarding', 'dashboard'
+            // If user exists locally or via auth, we skip welcome, unless expired guest.
+            const [screen, setScreen] = useState('loading');
+
+            const [theme, setTheme] = useState(localStorage.getItem('ciao_theme') || 'tactical');
+
+            useEffect(() => {
+                // Apply Theme
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('ciao_theme', theme);
+            }, [theme]);
+
+            useEffect(() => {
+                // Initial Route Logic
+                const checkRoute = async () => {
+                    const local = Storage.getUser();
+
+                    // Check Guest Expiry
+                    if (local && local.isGuest) {
+                        const created = local.createdAt || 0;
+                        const days = (Date.now() - created) / (1000 * 60 * 60 * 24);
+                        if (days > 3) {
+                            alert("GUEST ACCESS EXPIRED. PLEASE LOGIN.");
+                            Storage.clearAll();
+                            setUser(null);
+                            setScreen('welcome');
+                            return;
+                        }
+                    }
+
+                    if (local) {
+                        setScreen('dashboard');
+                    } else {
+                        setScreen('welcome');
+                    }
+                };
+                checkRoute();
+            }, []);
+
             useEffect(() => {
                 // Listen for Firebase Auth State
                 if (!window.CIAO.Firebase) {
@@ -1465,10 +1552,17 @@
                         if (cloudProfile) {
                             console.log("App: Synced Profile from Cloud");
                             setUser(cloudProfile);
-                        } else if (user) {
+                            setScreen('dashboard'); // Force dashboard on auth
+                        } else if (user && !user.isGuest) {
                             // First Login: Upload Local Profile
                             console.log("App: Uploading Init Profile to Cloud");
                             await window.CIAO.Nutrition.saveUserProfile(u.uid, user);
+                            setScreen('dashboard');
+                        } else {
+                            // New Cloud User (No local profile, or local was guest)
+                            if (!cloudProfile && !user) {
+                                setScreen('onboarding');
+                            }
                         }
                     } else {
                         console.log("App: User Signed Out");
@@ -1480,7 +1574,7 @@
 
             // Auto-Save Profile Changes to Cloud
             useEffect(() => {
-                if (user && authUser) {
+                if (user && authUser && !user.isGuest) {
                     const timer = setTimeout(() => {
                         window.CIAO.Nutrition.saveUserProfile(authUser.uid, user);
                     }, 2000); // 2s Debounce
@@ -1492,36 +1586,69 @@
                 await window.CIAO.Nutrition.signIn();
             };
 
+            const handleGuest = () => {
+                // Initialize Guest User
+                const guest = {
+                    name: 'GUEST AGENT',
+                    xp: 0,
+                    rankTitle: 'VISITOR',
+                    isGuest: true,
+                    createdAt: Date.now(),
+                    // Default Stats
+                    weight: 80, height: 180, age: 30, gender: 'male',
+                    bmr: 1800,
+                    goal: 'maintain'
+                };
+                Storage.saveUser(guest);
+                setUser(guest);
+                setScreen('dashboard');
+            };
+
             const handleLogout = async () => {
                 await window.CIAO.Nutrition.signOut();
+                setAuthUser(null);
+                setUser(null);
+                Storage.clearAll(); // Wipe local on logout
+                setScreen('welcome');
             };
 
             const handleOnboardingComplete = (newUser) => {
                 setUser(newUser);
+                setScreen('dashboard');
+                if (authUser) {
+                    window.CIAO.Nutrition.saveUserProfile(authUser.uid, newUser);
+                }
             };
 
             const handleReset = () => {
                 if (confirm("FACTORY RESET: This will wipe all data. Confirm?")) {
                     Storage.clearAll();
                     setUser(null);
+                    setScreen('welcome');
                 }
             };
 
-            if (!user) {
-                return <Onboarding onComplete={handleOnboardingComplete} />;
+            // RENDER LOGIC
+            if (screen === 'loading') return <div className="container" style={{ textAlign: 'center', marginTop: '40vh' }}>INITIALIZING SYSTEM...</div>;
+
+            if (screen === 'welcome') return <WelcomeScreen onLogin={handleLogin} onGuest={handleGuest} theme={theme} setTheme={setTheme} />;
+
+            if (screen === 'onboarding') return <Onboarding onComplete={handleOnboardingComplete} />;
+
+            if (screen === 'dashboard' && user) {
+                return (
+                    <Dashboard
+                        user={user}
+                        authUser={authUser}
+                        onReset={handleReset}
+                        setUser={setUser}
+                        onLogin={handleLogin}
+                        onLogout={handleLogout}
+                    />
+                );
             }
 
-            // Inject Auth props into Dashboard, which will pass them to Header
-            return (
-                <Dashboard
-                    user={user}
-                    authUser={authUser}
-                    onReset={handleReset}
-                    setUser={setUser}
-                    onLogin={handleLogin}
-                    onLogout={handleLogout}
-                />
-            );
+            return <div className="container" style={{ textAlign: 'center', marginTop: '40vh' }}>SYSTEM ERROR: INVALID STATE</div>;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
