@@ -299,24 +299,28 @@ window.CIAO.Nutrition = {
         } catch (error) {
             console.error("fetchNutrition failed:", error);
 
-            // If it's a structural/auth/network error, THROW it so the UI can alert the user.
-            // Don't hide it behind an empty array fallback.
-            if (error.message.includes("API Key") || error.message.includes("protocol") || error.message.includes("Not Found") || error.message.includes("failed to fetch")) {
-                throw error;
+            // 1. Specific Alerts for critical setup issues
+            if (error.message.includes("protocol")) {
+                throw new Error("AI Backend Error: Please run the app via a web server (e.g. 'netlify dev' or 'http-server') not directly opening index.html.");
+            }
+            if (error.message.includes("API Key")) {
+                throw new Error("AI Backend Error: Server is missing GOOGLE_API_KEY environment variable.");
             }
 
-            // Fallback to offline only for simple queries if AI failed for unknown reasons
-            if (query.split(' ').length < 4) {
+            // 2. Fallback to offline ONLY for extremely simple single-item queries
+            // e.g. "Chicken", "Egg", "Rice". 
+            // "One chicken biriyani" (3 words) should NEVER fallback if the user wants AI.
+            if (query.split(' ').length <= 1) {
                 const local = this.parseOfflineQuery(query, manualAmount);
                 if (local) {
-                    console.log("Falling back to Offline DB for simple query.");
+                    console.log("Falling back to Offline DB for single-word query.");
                     return [local];
                 }
             }
 
-            // If we get here, we have no result and it's not a "hard" error we want to alert.
-            // But usually, we want to know why.
-            throw error;
+            // 3. Provide more context to the "Netlify Function Error"
+            const detailedError = `Scan Failed: ${error.message}. (Check console/Netlify logs for details)`;
+            throw new Error(detailedError);
         }
     }
 };
