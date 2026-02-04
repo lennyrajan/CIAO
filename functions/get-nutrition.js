@@ -11,7 +11,10 @@ exports.handler = async function (event, context) {
         return { statusCode: 500, body: JSON.stringify({ error: 'Server misconfiguration: GOOGLE_API_KEY missing' }) };
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const model = 'gemini-1.5-flash-latest';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    console.log(`Backend calling: https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent...`);
 
     const prompt = `
   Analyze this food query: "${query}". 
