@@ -303,14 +303,14 @@ window.CIAO.Nutrition = {
             if (error.message.includes("protocol")) {
                 throw new Error("AI Backend Error: Please run the app via a web server (e.g. 'netlify dev' or 'http-server') not directly opening index.html.");
             }
-            if (error.message.includes("API Key")) {
+            if (error.message.includes("API Key") || error.message.includes("GOOGLE_API_KEY")) {
                 throw new Error("AI Backend Error: Server is missing GOOGLE_API_KEY environment variable.");
             }
 
-            // 2. Fallback to offline ONLY for extremely simple single-item queries
-            // e.g. "Chicken", "Egg", "Rice". 
-            // "One chicken biriyani" (3 words) should NEVER fallback if the user wants AI.
-            if (query.split(' ').length <= 1) {
+            // 2. Fallback to offline ONLY for extremely simple single-word queries (e.g. "Apple")
+            // This prevents "One chicken biriyani" (3 words) from getting a dumb "100g chicken" log.
+            const wordCount = query.trim().split(/\s+/).length;
+            if (wordCount === 1) {
                 const local = this.parseOfflineQuery(query, manualAmount);
                 if (local) {
                     console.log("Falling back to Offline DB for single-word query.");

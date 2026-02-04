@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-
+// Use native fetch (Node 18+) to avoid dependency issues with node-fetch
 exports.handler = async function (event, context) {
     const { query } = event.queryStringParameters;
     const apiKey = process.env.GOOGLE_API_KEY;
@@ -9,7 +8,7 @@ exports.handler = async function (event, context) {
     }
 
     if (!apiKey) {
-        return { statusCode: 500, body: JSON.stringify({ error: 'Server misconfiguration: API Key missing' }) };
+        return { statusCode: 500, body: JSON.stringify({ error: 'Server misconfiguration: GOOGLE_API_KEY missing' }) };
     }
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
@@ -28,13 +27,13 @@ exports.handler = async function (event, context) {
     "fat_total_g": number (float),
     "fiber_g": number (float),
     "saturated_fat_g": number (float),
-    "serving_size_g": number (float, estimate standard weight if not specified)
+    "serving_size_g": number (float)
   }
 
   Rules:
-  1. Identify all distinct food/drink items. Handle typos gracefully (e.g., "chocken" -> "chicken").
+  1. Identify all distinct food/drink items. Handle typos (e.g., "chocken" -> "chicken").
   2. If the user says "one apple", use ~182g. If "one coffee with milk", estimate the coffee + milk volume.
-  3. For complex dishes like "chicken biriyani", provide macros for a standard portion (e.g., 350-500g). Do not just return "chicken".
+  3. MANDATORY: For composite dishes like "chicken biriyani", "pizza", "burger", "one plate biriyani", etc., YOU MUST return the macros for the ENTIRE DISH as a single item. DO NOT just return the main ingredient (like chicken). A standard plate of biriyani is ~350-500g and ~500-800kcal.
   4. If a meal prefix exists (e.g., "dinner:"), ignore the prefix but use it to contextually understand following items.
   5. RETURN ONLY THE RAW JSON ARRAY. No markdown, no triple backticks.
   `;
@@ -49,13 +48,15 @@ exports.handler = async function (event, context) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorText = await response.text();
+            let errorData;
+            try { errorData = JSON.parse(errorText); } catch (e) { errorData = errorText; }
+
             return {
                 statusCode: response.status,
                 body: JSON.stringify({ error: 'Gemini API Error', details: errorData })
             };
         }
-
 
         const data = await response.json();
         return {
@@ -64,6 +65,10 @@ exports.handler = async function (event, context) {
         };
 
     } catch (error) {
-        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+        console.error("Function Error:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: `Internal Server Error: ${error.message}` })
+        };
     }
 };
