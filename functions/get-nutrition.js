@@ -16,10 +16,27 @@ exports.handler = async function (event, context) {
 
     const prompt = `
   Analyze this food query: "${query}". 
-  Return a STRICT JSON array of objects with nutritional estimates. 
-  Format: [{"name": string, "calories": number, "protein_g": number, "carbohydrates_total_g": number, "fat_total_g": number}].
-  If quantity is not specified, estimate a standard serving size.
-  Do not include Markdown formatting (like \`\`\`json). Just the raw JSON string.
+  The query may contain multiple food items or a single meal description.
+  
+  Return a STRICT JSON array of objects. 
+  Each object MUST follow this format:
+  {
+    "name": "Display name of item",
+    "calories": number (integer),
+    "protein_g": number (float),
+    "carbohydrates_total_g": number (float),
+    "fat_total_g": number (float),
+    "fiber_g": number (float),
+    "saturated_fat_g": number (float),
+    "serving_size_g": number (float, estimate standard weight if not specified)
+  }
+
+  Rules:
+  1. Identify all distinct food/drink items.
+  2. If the user says "one apple", use ~182g. If "one coffee with milk", estimate the coffee + milk volume.
+  3. For complex dishes like "plate chicken biriyani", provide macros for a standard portion (e.g., 350-450g).
+  4. If a meal prefix exists (e.g., "dinner:"), ignore the prefix but use it to contextually understand following items.
+  5. RETURN ONLY THE RAW JSON ARRAY. No markdown, no triple backticks.
   `;
 
     try {

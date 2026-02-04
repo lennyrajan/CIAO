@@ -261,14 +261,30 @@ window.CIAO.Nutrition = {
 
             const textResponse = data.candidates[0].content.parts[0].text;
             const jsonStr = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-            const items = JSON.parse(jsonStr);
+            const rawItems = JSON.parse(jsonStr);
+
+            // Standardize fields to internal format
+            const items = rawItems.map(item => ({
+                name: item.name,
+                calories: Math.round(item.calories || 0),
+                protein: item.protein_g || item.protein || 0,
+                carbs: item.carbohydrates_total_g || item.carbs || 0,
+                fat: item.fat_total_g || item.fat || 0,
+                fiber: item.fiber_g || item.fiber || 0,
+                sat_fat: item.saturated_fat_g || item.sat_fat || 0,
+                serving_size_g: item.serving_size_g || 100,
+                source: 'GEMINI_API'
+            }));
 
             return items;
 
         } catch (error) {
             console.warn("Netlify Service failed, falling back to offline.", error);
-            const local = this.parseOfflineQuery(query, manualAmount); // Pass manual override
-            if (local) return [local];
+            // Only fallback to offline for simple queries, complex natural language won't match well
+            if (query.split(' ').length < 4) {
+                const local = this.parseOfflineQuery(query, manualAmount);
+                if (local) return [local];
+            }
             return [];
         }
     }

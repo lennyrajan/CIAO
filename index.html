@@ -343,6 +343,7 @@
 
             // Food Form
             const [foodForm, setFoodForm] = useState({ name: '', quantity: 0, ratios: null, cals: 0, prot: 0, carbs: 0, fat: 0, fiber: 0, satFat: 0, airfry: false, bonePercent: 0, yieldPercent: 1.0 });
+            const [batchResults, setBatchResults] = useState(null); // New: for multi-item results
 
             // Load Daily Log (Migration Logic included)
             useEffect(() => {
@@ -1115,39 +1116,46 @@
                                                 const manualAmount = scanQty ? parseFloat(scanQty) : null;
                                                 const items = await Nutrition.fetchNutrition(query, manualAmount);
                                                 if (items && items.length > 0) {
-                                                    const item = items[0];
+                                                    if (items.length > 1) {
+                                                        // Multi-item path
+                                                        setBatchResults(items);
+                                                        setScanQuery('');
+                                                        setScanQty('');
+                                                        setSuggestions([]);
+                                                    } else {
+                                                        // Single item path
+                                                        const item = items[0];
+                                                        const qty = item.serving_size_g || 100;
+                                                        const ratios = {
+                                                            cals: (item.calories || 0) / qty,
+                                                            prot: (item.protein || 0) / qty,
+                                                            carbs: (item.carbs || 0) / qty,
+                                                            fat: (item.fat || 0) / qty,
+                                                            fiber: (item.fiber || 0) / qty,
+                                                            satFat: (item.sat_fat || 0) / qty
+                                                        };
 
-                                                    // Auto-scaling Logic
-                                                    const qty = item.serving_size_g || 100;
-                                                    const ratios = {
-                                                        cals: (item.calories || 0) / qty,
-                                                        prot: (item.protein_g || item.protein || 0) / qty,
-                                                        carbs: (item.carbohydrates_total_g || item.carbs || 0) / qty,
-                                                        fat: (item.fat_total_g || item.fat || 0) / qty,
-                                                        fiber: (item.fiber || 0) / qty,
-                                                        satFat: (item.sat_fat || 0) / qty
-                                                    };
+                                                        let cleanName = item.name.replace(/\(\d+g\)/i, '').trim();
 
-                                                    // Strip "(100g)" or similar from the name to keep it clean
-                                                    let cleanName = item.name.replace(/\(\d+g\)/i, '').trim();
-
-                                                    setFoodForm({
-                                                        name: cleanName,
-                                                        quantity: qty,
-                                                        ratios: ratios,
-                                                        cals: item.calories,
-                                                        prot: item.protein_g || item.protein,
-                                                        carbs: item.carbohydrates_total_g || item.carbs,
-                                                        fat: item.fat_total_g || item.fat,
-                                                        fiber: item.fiber || 0,
-                                                        satFat: item.sat_fat || 0,
-                                                        airfry: false,
-                                                        bonePercent: 0,
-                                                        yieldPercent: 1.0
-                                                    });
-                                                    setScanQuery(''); // Clear after success
-                                                    setScanQty('');
-                                                    setSuggestions([]);
+                                                        setFoodForm({
+                                                            name: cleanName,
+                                                            quantity: qty,
+                                                            ratios: ratios,
+                                                            cals: item.calories,
+                                                            prot: item.protein,
+                                                            carbs: item.carbs,
+                                                            fat: item.fat,
+                                                            fiber: item.fiber || 0,
+                                                            satFat: item.sat_fat || 0,
+                                                            airfry: false,
+                                                            bonePercent: 0,
+                                                            yieldPercent: 1.0
+                                                        });
+                                                        setBatchResults(null);
+                                                        setScanQuery('');
+                                                        setScanQty('');
+                                                        setSuggestions([]);
+                                                    }
                                                 } else {
                                                     alert("No intelligence found on this item.");
                                                 }
@@ -1155,8 +1163,61 @@
                                                 alert("Scan Failed: " + e.message);
                                             }
                                         }}>SCAN</button>
+
                                     </div>
                                 </div>
+
+                                {/* Batch Review UI */}
+                                {batchResults && (
+                                    <div className="panel" style={{ background: 'rgba(0, 255, 65, 0.05)', border: '1px solid var(--hud-green)', marginBottom: '1.5rem', animation: 'fadeIn 0.3s ease-out' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                            <span className="header-text" style={{ color: 'var(--hud-green)', fontSize: '0.9em' }}>BATCH INTEL DETECTED</span>
+                                            <button className="btn" style={{ width: 'auto', padding: '2px 8px', fontSize: '0.7em' }} onClick={() => setBatchResults(null)}>CANCEL</button>
+                                        </div>
+                                        <div style={{ maxHeight: '250px', overflowY: 'auto', marginBottom: '15px' }}>
+                                            {batchResults.map((item, idx) => (
+                                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px dashed #222' }}>
+                                                    <div>
+                                                        <div style={{ fontSize: '0.9em', color: '#fff' }}>{item.name}</div>
+                                                        <div style={{ fontSize: '0.75em', color: '#888' }}>
+                                                            {item.serving_size_g}g | {item.calories} kcal | P: {item.protein} | C: {item.carbs} | F: {item.fat}
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        style={{ background: 'none', border: 'none', color: 'var(--hud-red)', cursor: 'pointer', fontSize: '0.7em' }}
+                                                        onClick={() => setBatchResults(prev => prev.filter((_, i) => i !== idx))}
+                                                    >
+                                                        [REMOVE]
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ background: 'var(--hud-green)', color: '#000' }}
+                                            onClick={() => {
+                                                const newEntries = batchResults.map(item => ({
+                                                    id: (Date.now() + Math.random()).toString(),
+                                                    name: `${item.name} (${item.serving_size_g}g)`,
+                                                    protein: item.protein,
+                                                    carbs: item.carbs,
+                                                    fat: item.fat,
+                                                    fiber: item.fiber || 0,
+                                                    satFat: item.sat_fat || 0,
+                                                    calories: item.calories,
+                                                    timestamp: Date.now()
+                                                }));
+                                                setFoodLog(prev => [...prev, ...newEntries]);
+                                                setBatchResults(null);
+                                                setIsLogOpen(false);
+                                                alert(`Logged ${newEntries.length} items to mission log.`);
+                                            }}
+                                        >
+                                            LOG ALL {batchResults.length} ITEMS
+                                        </button>
+                                    </div>
+                                )}
+
 
                                 <div className="input-group">
                                     <label className="input-label">Name</label>
