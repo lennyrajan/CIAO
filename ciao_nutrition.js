@@ -261,15 +261,25 @@ window.CIAO.Nutrition = {
 
 
             const data = await response.json();
+            console.log("Gemini API Response Data:", data);
 
-            if (!data.candidates) {
-                if (data.error) throw new Error("API Error: " + data.error);
-                throw new Error("Invalid structure from API");
+            if (!data.candidates || data.candidates.length === 0) {
+                if (data.error) throw new Error("API Error: " + data.error.message || data.error);
+                throw new Error("Gemini returned no candidates. This might be due to safety filters or an empty query.");
             }
 
             const textResponse = data.candidates[0].content.parts[0].text;
+            console.log("Raw Text Result:", textResponse);
+
+            // Clean markdown and parse JSON
             const jsonStr = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-            const rawItems = JSON.parse(jsonStr);
+            let rawItems;
+            try {
+                rawItems = JSON.parse(jsonStr);
+            } catch (e) {
+                console.error("JSON Parse Error on:", jsonStr);
+                throw new Error("AI returned invalid data format. Please try rephrasing.");
+            }
 
             // Standardize fields to internal format
             const items = rawItems.map(item => ({
@@ -287,13 +297,26 @@ window.CIAO.Nutrition = {
             return items;
 
         } catch (error) {
-            console.warn("Netlify Service failed, falling back to offline.", error);
-            // Only fallback to offline for simple queries, complex natural language won't match well
+            console.error("fetchNutrition failed:", error);
+
+            // If it's a structural/auth/network error, THROW it so the UI can alert the user.
+            // Don't hide it behind an empty array fallback.
+            if (error.message.includes("API Key") || error.message.includes("protocol") || error.message.includes("Not Found") || error.message.includes("failed to fetch")) {
+                throw error;
+            }
+
+            // Fallback to offline only for simple queries if AI failed for unknown reasons
             if (query.split(' ').length < 4) {
                 const local = this.parseOfflineQuery(query, manualAmount);
-                if (local) return [local];
+                if (local) {
+                    console.log("Falling back to Offline DB for simple query.");
+                    return [local];
+                }
             }
-            return [];
+
+            // If we get here, we have no result and it's not a "hard" error we want to alert.
+            // But usually, we want to know why.
+            throw error;
         }
     }
 };
