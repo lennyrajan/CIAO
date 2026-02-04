@@ -1449,6 +1449,11 @@
 
             useEffect(() => {
                 // Listen for Firebase Auth State
+                if (!window.CIAO.Firebase) {
+                    console.warn("App: Firebase not initialized. Skipping Auth listeners.");
+                    return;
+                }
+
                 const { auth, onAuthStateChanged } = window.CIAO.Firebase;
                 const unsubscribe = onAuthStateChanged(auth, async (u) => {
                     if (u) {

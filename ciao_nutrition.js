@@ -15,22 +15,35 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// Compat syntax: firebase.initializeApp()
-const app = firebase.initializeApp(firebaseConfig);
-const analytics = firebase.analytics();
-const auth = firebase.auth();
-const db = firebase.firestore();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+let app, analytics, auth, db, googleProvider;
+
+try {
+    if (typeof firebase !== 'undefined') {
+        app = firebase.initializeApp(firebaseConfig);
+        analytics = firebase.analytics();
+        auth = firebase.auth();
+        db = firebase.firestore();
+        googleProvider = new firebase.auth.GoogleAuthProvider();
+        console.log("Firebase Initialized Successfully");
+    } else {
+        console.warn("Firebase SDK not loaded. Offline mode only.");
+    }
+} catch (e) {
+    console.error("Firebase Init Error:", e);
+}
 
 // Expose Auth & DB to window for other scripts (optional debug)
 // Note: onAuthStateChanged is directly on auth object
-window.CIAO.Firebase = { auth, db, googleProvider, onAuthStateChanged: (authInstance, cb) => authInstance.onAuthStateChanged(cb) };
+window.CIAO.Firebase = auth ? { auth, db, googleProvider, onAuthStateChanged: (authInstance, cb) => authInstance.onAuthStateChanged(cb) } : null;
 
 window.CIAO.Nutrition = {
-    // Auth Helpers
     signIn: async () => {
+        if (!auth) {
+            alert("System Error: Comm Link Offline (Firebase SDK missing).");
+            return null;
+        }
         try {
-            const result = await signInWithPopup(auth, googleProvider);
+            const result = await auth.signInWithPopup(googleProvider);
             console.log("User signed in:", result.user);
             return result.user;
         } catch (error) {
@@ -53,7 +66,7 @@ window.CIAO.Nutrition = {
     // --- FIRESTORE PERSISTENCE ---
 
     saveUserProfile: async (uid, profile) => {
-        if (!uid || !profile) return;
+        if (!db || !uid || !profile) return;
         try {
             await db.collection("users").doc(uid).set({
                 ...profile,
@@ -63,7 +76,7 @@ window.CIAO.Nutrition = {
     },
 
     getUserProfile: async (uid) => {
-        if (!uid) return null;
+        if (!db || !uid) return null;
         try {
             const snap = await db.collection("users").doc(uid).get();
             if (snap.exists) return snap.data();
@@ -72,7 +85,7 @@ window.CIAO.Nutrition = {
     },
 
     saveDailyLog: async (uid, dateString, data) => {
-        if (!uid || !dateString) return;
+        if (!db || !uid || !dateString) return;
         try {
             // Path: users/{uid}/daily_logs/{YYYY-MM-DD}
             const logRef = db.collection("users").doc(uid).collection("daily_logs").doc(dateString);
@@ -85,7 +98,7 @@ window.CIAO.Nutrition = {
     },
 
     getDailyLog: async (uid, dateString) => {
-        if (!uid || !dateString) return null;
+        if (!db || !uid || !dateString) return null;
         try {
             const snap = await db.collection("users").doc(uid).collection("daily_logs").doc(dateString).get();
             if (snap.exists) return snap.data();
