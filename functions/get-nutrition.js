@@ -11,10 +11,67 @@ exports.handler = async function (event, context) {
         return { statusCode: 500, body: JSON.stringify({ error: 'Server misconfiguration: GOOGLE_API_KEY missing' }) };
     }
 
-    const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.0-pro'];
-    let lastError = null;
+    try {
+        // 1. DISCOVERY PHASE: Find out what models this API key actually supports
+        // We use the 'x-goog-api-key' header instead of the ?key= query param for better compatibility
+        const listModelsUrl = `https://generativelanguage.googleapis.com/v1beta/models`;
+        console.log("Discovering available models with x-goog-api-key...");
 
-    const prompt = `
+        const listResponse = await fetch(listModelsUrl, {
+            headers: { 'x-goog-api-key': apiKey }
+        });
+
+        if (!listResponse.ok) {
+            const listErrText = await listResponse.text();
+            console.error("Discovery failed:", listResponse.status, listErrText);
+            return {
+                statusCode: listResponse.status,
+                body: JSON.stringify({ error: 'Gemini Discovery Failed', details: listErrText })
+            };
+        }
+
+        const listData = await listResponse.json();
+        const availableModels = listData.models || [];
+
+        // Filter for models that support 'generateContent'
+        const compatibleModels = availableModels.filter(m =>
+            m.supportedGenerationMethods.includes('generateContent')
+        );
+
+        if (compatibleModels.length === 0) {
+            return {
+                statusCode: 404,
+                body: JSON.stringify({ error: 'No compatible Gemini models found for this API key.', found: availableModels.map(m => m.name) })
+            };
+        }
+
+        // Discovery Logic: Prefer gemini-3, then gemini-2, then gemini-1.5-flash
+        compatibleModels.sort((a, b) => {
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+
+            // Priority 1: Gemini 3
+            if (aName.includes('gemini-3') && !bName.includes('gemini-3')) return -1;
+            if (!aName.includes('gemini-3') && bName.includes('gemini-3')) return 1;
+
+            // Priority 2: Gemini 2
+            if (aName.includes('gemini-2') && !bName.includes('gemini-2')) return -1;
+            if (!aName.includes('gemini-2') && bName.includes('gemini-2')) return 1;
+
+            // Priority 3: Gemini 1.5-flash
+            if (aName.includes('flash') && !bName.includes('flash')) return -1;
+            if (!aName.includes('flash') && bName.includes('flash')) return 1;
+
+            return 0;
+        });
+
+        const targetModel = compatibleModels[0].name; // e.g. 'models/gemini-3-flash-preview'
+        console.log(`Success! Using discovered model: ${targetModel}`);
+
+        // 2. GENERATION PHASE
+        const url = `https://generativelanguage.googleapis.com/v1beta/${targetModel}:generateContent`;
+
+        const prompt = `
   Analyze this food query: "${query}". 
   The query may contain multiple food items or a single meal description.
   
@@ -39,51 +96,37 @@ exports.handler = async function (event, context) {
   5. RETURN ONLY THE RAW JSON ARRAY. No markdown, no triple backticks.
   `;
 
-    for (const model of models) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        console.log(`Attempting Gemini API with model: ${model}...`);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKey
+            },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log(`Success with model: ${model}`);
-                return {
-                    statusCode: 200,
-                    body: JSON.stringify(data)
-                };
-            }
-
-            const errorText = await response.text();
-            console.warn(`Model ${model} failed with ${response.status}: ${errorText}`);
-            lastError = { status: response.status, text: errorText, model };
-
-            // If it's a 404, we continue to the next model. 
-            // If it's a 429 (quota) or 400 (bad prompt), we might want to stop, 
-            // but for safety let's try the next model regardless of the error type if it's not a success.
-            continue;
-
-        } catch (error) {
-            console.error(`Fetch error for model ${model}:`, error);
-            lastError = { status: 500, text: error.message, model };
-            continue;
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                statusCode: 200,
+                body: JSON.stringify(data)
+            };
         }
-    }
 
-    // If we reach here, all models failed
-    return {
-        statusCode: lastError.status || 500,
-        body: JSON.stringify({
-            error: 'All Gemini models failed',
-            last_attempted: lastError.model,
-            details: lastError.text
-        })
-    };
+        const errorText = await response.text();
+        console.error(`Generation failed for ${targetModel}:`, response.status, errorText);
+        return {
+            statusCode: response.status,
+            body: JSON.stringify({ error: 'Gemini Generation Failed', model: targetModel, details: errorText })
+        };
+
+    } catch (error) {
+        console.error("Function Error:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: `Internal Server Error: ${error.message}` })
+        };
+    }
 };
