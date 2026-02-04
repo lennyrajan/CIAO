@@ -253,11 +253,14 @@ window.CIAO.Nutrition = {
             const url = `/.netlify/functions/get-nutrition?query=${encodeURIComponent(apiQuery)}`;
 
             const response = await fetch(url);
+            console.log(`Response Status: ${response.status} ${response.statusText}`);
 
             if (!response.ok) {
                 const errorInfo = await response.json().catch(() => ({ error: response.statusText }));
-                throw new Error(errorInfo.error || "Netlify Function Error");
+                console.error("Function returned error:", response.status, errorInfo);
+                throw new Error(errorInfo.error || `HTTP ${response.status}: ${response.statusText || "Netlify Function Error"}`);
             }
+
 
 
             const data = await response.json();
